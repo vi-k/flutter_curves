@@ -3,20 +3,26 @@ import 'package:flutter/material.dart';
 import 'animation_box.dart';
 
 class ShowBox extends AnimationBox {
-  final Color failColor;
+  final bool showError;
+  final Color errorColor;
 
   const ShowBox({
     super.key,
     required super.animation,
     required super.curve,
+    required super.fill,
     required super.flipped,
-    super.fill = true,
-    this.failColor = Colors.yellow,
+    required super.primaryColor,
+    required this.showError,
+    required this.errorColor,
   });
 
   @override
   void doPaint(Canvas canvas, double value, double px, Paint paint) {
-    if (value < 0) paint.color = failColor;
+    if (showError && value < 0) {
+      paint.color = errorColor;
+    }
+
     canvas
       ..translate(0, -1)
       ..scale(1, value)

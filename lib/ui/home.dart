@@ -1,17 +1,17 @@
 import 'package:curve_demo/ui/animation_boxes/square_circle_box.dart';
+import 'package:curve_demo/ui/app.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'animation_boxes/color_box.dart';
 import 'animation_boxes/move_box.dart';
-import 'animation_boxes/opacity_box.dart';
 import 'animation_boxes/rotate_box.dart';
 import 'animation_boxes/scale_box.dart';
 import 'animation_boxes/show_box.dart';
+import 'constants.dart';
 import 'curves/curve_painter.dart';
 import 'curves/curves.dart';
-
-const double defaultPadding = 8;
+import 'curves/simple_curve_painter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.title});
@@ -26,39 +26,41 @@ class HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
   static const Duration _defaultAnimationDuration = Duration(seconds: 1);
   static const Duration _pauseDuration = Duration(milliseconds: 500);
-  static const List<Duration> _durations = [
-    Duration(milliseconds: 100),
-    Duration(milliseconds: 200),
-    Duration(milliseconds: 300),
-    Duration(milliseconds: 500),
-    Duration(seconds: 1),
-    Duration(seconds: 2),
-    Duration(seconds: 5),
-    Duration(seconds: 10),
-    Duration(seconds: 20),
-  ];
 
   late final AnimationController _animationController;
   late final Animation<double> animation;
-  bool _flipped = true;
-  bool _fill = true;
   late Curve _curve;
-  double _a = 0.25;
-  double _b = 0.1;
-  double _c = 0.25;
-  double _d = 1;
+  double _cubicA = 0.25;
+  double _cubicB = 0.1;
+  double _cubicC = 0.25;
+  double _cubicD = 1;
   double _elasticPeriod = 0.4;
   int _elasticType = 0;
+  bool _fill = true;
+  bool _showError = true;
+  bool _flipped = true;
+  late Color _primaryColor;
+  late Color _secondaryColor;
+  late Color _errorColor;
+  late Color _curveColor;
+  late Color _cubicColor;
+
+  Duration get animationDuration => _animationController.duration!;
+  set animationDuration(Duration value) {
+    setState(() {
+      _animationController.duration = value;
+    });
+  }
 
   Curve get curve => _curve;
   set curve(Curve value) {
     setState(() {
       _curve = value;
       if (value is Cubic) {
-        _a = value.a;
-        _b = value.b;
-        _c = value.c;
-        _d = value.d;
+        _cubicA = value.a;
+        _cubicB = value.b;
+        _cubicC = value.c;
+        _cubicD = value.d;
       } else if (value is ElasticInCurve) {
         _elasticType = 0;
         _elasticPeriod = value.period;
@@ -72,27 +74,27 @@ class HomePageState extends State<HomePage>
     });
   }
 
-  double get a => _a;
-  set a(double value) {
-    _a = value;
+  double get cubicA => _cubicA;
+  set cubicA(double value) {
+    _cubicA = value;
     _assemblyCubic();
   }
 
-  double get b => _b;
-  set b(double value) {
-    _b = value;
+  double get cubicB => _cubicB;
+  set cubicB(double value) {
+    _cubicB = value;
     _assemblyCubic();
   }
 
-  double get c => _c;
-  set c(double value) {
-    _c = value;
+  double get cubicC => _cubicC;
+  set cubicC(double value) {
+    _cubicC = value;
     _assemblyCubic();
   }
 
-  double get d => _d;
-  set d(double value) {
-    _d = value;
+  double get cubicD => _cubicD;
+  set cubicD(double value) {
+    _cubicD = value;
     _assemblyCubic();
   }
 
@@ -108,8 +110,35 @@ class HomePageState extends State<HomePage>
     _assemblyElastic();
   }
 
+  bool get fill => _fill;
+  set fill(bool value) {
+    setState(() {
+      _fill = value;
+    });
+  }
+
+  bool get showError => _showError;
+  set showError(bool value) {
+    setState(() {
+      _showError = value;
+    });
+  }
+
+  bool get flipped => _flipped;
+  set flipped(bool value) {
+    setState(() {
+      _flipped = value;
+    });
+  }
+
+  Color get primaryColor => _primaryColor;
+  Color get secondaryColor => _secondaryColor;
+  Color get errorColor => _errorColor;
+  Color get curveColor => _curveColor;
+  Color get cubicColor => _cubicColor;
+
   void _assemblyCubic() {
-    curve = Cubic(a, b, c, d);
+    curve = Cubic(cubicA, cubicB, cubicC, cubicD);
   }
 
   void _assemblyElastic() {
@@ -124,27 +153,6 @@ class HomePageState extends State<HomePage>
         curve = ElasticInOutCurve(_elasticPeriod);
         break;
     }
-  }
-
-  Duration get animationDuration => _animationController.duration!;
-  set animationDuration(Duration value) {
-    setState(() {
-      _animationController.duration = value;
-    });
-  }
-
-  bool get flipped => _flipped;
-  set flipped(bool value) {
-    setState(() {
-      _flipped = value;
-    });
-  }
-
-  bool get fill => _fill;
-  set fill(bool value) {
-    setState(() {
-      _fill = value;
-    });
   }
 
   @override
@@ -187,6 +195,23 @@ class HomePageState extends State<HomePage>
     super.dispose();
   }
 
+  @override
+  void didChangeDependencies() {
+    final theme = Theme.of(context);
+
+    _primaryColor = theme.colorScheme.primary;
+    _secondaryColor = theme.colorScheme.secondary;
+    _errorColor = theme.colorScheme.error;
+    _curveColor =
+        theme.brightness == Brightness.light ? Colors.red : Colors.red.shade700;
+    _cubicColor = (theme.brightness == Brightness.light
+            ? Colors.blue
+            : Colors.blue.shade700)
+        .withOpacity(0.7);
+
+    super.didChangeDependencies();
+  }
+
   Future<void> _animationLoop() async {
     while (mounted) {
       await Future<void>.delayed(_pauseDuration);
@@ -201,172 +226,85 @@ class HomePageState extends State<HomePage>
   }
 
   @override
-  Widget build(BuildContext context) => Provider.value(
-        value: this,
-        updateShouldNotify: (_, __) => true,
-        child: Scaffold(
-          appBar: AppBar(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-            title: Text(widget.title),
-          ),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Expanded(
-                child: Padding(
-                  padding: EdgeInsets.all(defaultPadding),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      _LeftAnimatedBoxes(),
-                      SizedBox(width: 2 * defaultPadding),
-                      Flexible(
-                        child: _Curve(),
-                      ),
-                      SizedBox(width: 2 * defaultPadding),
-                      _RightAnimatedBoxes(),
-                    ],
-                  ),
-                ),
-              ),
-              _Fill(
-                fill: fill,
-                onChanged: (fill) => this.fill = fill,
-              ),
-              _Flipped(
-                flipped: flipped,
-                onChanged: (flipped) => this.flipped = flipped,
-              ),
-              _Slider(
-                label: 'duration:',
-                enabled: true,
-                value: _durations.indexOf(animationDuration).toDouble(),
-                min: 0,
-                max: _durations.length - 1,
-                divisions: _durations.length,
-                onChanged: (value) {
-                  animationDuration = _durations[value.round()];
-                },
-                valueBuilder: (value) {
-                  final s = animationDuration.inSeconds;
-                  final ms = animationDuration.inMilliseconds % 1000;
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
 
-                  return SizedBox(
-                    width: 80,
-                    child: Text(
-                      s == 0 ? '$ms ms' : '$s s${ms == 0 ? '' : ' $ms ms'}',
-                      textAlign: TextAlign.end,
-                    ),
-                  );
-                },
-              ),
-              _CurveSlider(
-                label: 'cubic x1:',
-                enabled: curve is Cubic,
-                value: a,
-                onChanged: (value) => a = value,
-              ),
-              _CurveSlider(
-                label: 'cubic y1:',
-                enabled: curve is Cubic,
-                value: b,
-                onChanged: (value) => b = value,
-              ),
-              _CurveSlider(
-                label: 'cubic x2:',
-                enabled: curve is Cubic,
-                value: c,
-                onChanged: (value) => c = value,
-              ),
-              _CurveSlider(
-                label: 'cubic y2:',
-                enabled: curve is Cubic,
-                value: d,
-                onChanged: (value) => d = value,
-              ),
-              Row(
-                children: [
-                  Expanded(
-                    child: _Slider(
-                      label: 'elastic:',
-                      enabled: MyCurves.isElastic(curve),
-                      min: 0,
-                      max: 2,
-                      divisions: 3,
-                      value: elasticType.toDouble(),
-                      onChanged: (value) => elasticType = value.round(),
-                      valueBuilder: (value) {
-                        String text;
-                        switch (value.round()) {
-                          case 0:
-                            text = 'in';
-                            break;
-                          case 1:
-                            text = 'out';
-                            break;
-                          case 2:
-                            text = 'in out';
-                            break;
-                          default:
-                            text = '-';
-                        }
-
-                        return SizedBox(
-                          width: 40,
-                          child: Text(
-                            text,
-                            textAlign: TextAlign.center,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                  Expanded(
-                    flex: 2,
-                    child: _CurveSlider(
-                      enabled: MyCurves.isElastic(curve),
-                      min: 0.1,
-                      max: 2,
-                      value: elasticPeriod,
-                      onChanged: (value) => elasticPeriod = value,
-                    ),
-                  ),
+    return Provider.value(
+      value: this,
+      updateShouldNotify: (_, __) => true,
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: theme.colorScheme.inversePrimary,
+          title: Text(widget.title),
+          actions: const [
+            _ThemeSwitcher(),
+          ],
+        ),
+        body: Column(
+          children: [
+            const Expanded(
+              flex: 2,
+              child: _Main(),
+            ),
+            const _CurveInfo(),
+            Expanded(
+              flex: 3,
+              child: ListView(
+                children: const [
+                  _CurvesSelector(),
+                  _Fill(),
+                  _Flipped(),
+                  _ShowError(),
+                  _Duration(),
+                  _Cubic(),
+                  _Elastic(),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 0),
-                child: DropdownButton<String>(
-                  value: MyCurves.findByCurve(curve),
-                  isExpanded: true,
-                  onChanged: (value) {
-                    if (value != null) {
-                      final curve = MyCurves.findByName(value);
-                      if (curve != null) {
-                        this.curve = curve;
-                      }
-                    }
-                  },
-                  items: [
-                    for (final name in MyCurves.allCurves)
-                      DropdownMenuItem<String>(
-                        value: name,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: Text(name),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              Text(
-                curve.toString(),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
-      );
+      ),
+    );
+  }
+}
+
+class _ThemeSwitcher extends StatelessWidget {
+  const _ThemeSwitcher();
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = Provider.of<AppState>(context);
+
+    return AnimatedSwitcher(
+      duration: Const.defaultAnimationDuration,
+      switchInCurve: Curves.easeInSine,
+      switchOutCurve: Curves.easeOutSine,
+      transitionBuilder: (child, animation) => SizeTransition(
+        key: child.key,
+        axis: Axis.horizontal,
+        sizeFactor: animation,
+        child: child,
+      ),
+      layoutBuilder: (current, previous) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (current != null) current,
+          ...previous,
+        ],
+      ),
+      child: appState.brightness == Brightness.light
+          ? IconButton(
+              key: const ValueKey('night'),
+              onPressed: () => appState.brightness = Brightness.dark,
+              icon: const Icon(Icons.mode_night),
+            )
+          : IconButton(
+              key: const ValueKey('day'),
+              onPressed: () => appState.brightness = Brightness.light,
+              icon: const Icon(Icons.light_mode),
+            ),
+    );
+  }
 }
 
 class _Curve extends StatelessWidget {
@@ -375,21 +313,66 @@ class _Curve extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final state = Provider.of<HomePageState>(context);
+    final theme = Theme.of(context);
 
-    return AspectRatio(
-      aspectRatio: 1 / 1.6,
-      child: CustomPaint(
-        painter: CurvePainter(
-          animation: state.animation,
-          curve: state.curve,
-          flipped: state.flipped,
-          mx: 1,
-          my: 1.6,
+    return RepaintBoundary(
+      child: AspectRatio(
+        aspectRatio: 1 / 1.6,
+        child: CustomPaint(
+          painter: CurvePainter(
+            animation: state.animation,
+            curve: state.curve,
+            flipped: state.flipped,
+            mx: 1,
+            my: 1.6,
+            curveColor: state.curveColor,
+            valueColor: state.curveColor,
+            axisColor: theme.colorScheme.inverseSurface.withOpacity(0.7),
+            gridPrimaryColor: theme.colorScheme.inverseSurface.withOpacity(0.2),
+            gridSecondaryColor:
+                theme.colorScheme.inverseSurface.withOpacity(0.1),
+            cubicMarkerColor: state.cubicColor,
+            cubicLineColor: state.cubicColor,
+          ),
         ),
-        willChange: true,
       ),
     );
   }
+}
+
+class _SimpleCurve extends StatelessWidget {
+  final Curve curve;
+  final Color curveColor;
+
+  const _SimpleCurve({
+    required this.curve,
+    required this.curveColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return RepaintBoundary(
+      child: AspectRatio(
+        aspectRatio: 1 / 1,
+        child: CustomPaint(
+          painter: SimpleCurvePainter(
+            curve: curve,
+            mx: 1,
+            my: 1,
+            curveColor: curveColor,
+            axisColor: theme.colorScheme.inverseSurface.withOpacity(0.5),
+            gridColor: theme.colorScheme.inverseSurface.withOpacity(0.2),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BoxesHeightDivider extends SizedBox {
+  const _BoxesHeightDivider() : super(height: 2 * Const.defaultPadding);
 }
 
 class _LeftAnimatedBoxes extends StatelessWidget {
@@ -399,42 +382,55 @@ class _LeftAnimatedBoxes extends StatelessWidget {
   Widget build(BuildContext context) {
     final state = Provider.of<HomePageState>(context);
 
-    return SizedBox(
-      width: 60,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ScaleBox(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      mainAxisAlignment: MainAxisAlignment.start,
+      children: [
+        Expanded(
+          child: ScaleBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
+            showError: state.showError,
+            errorColor: state.errorColor,
           ),
-          const SizedBox(height: defaultPadding),
-          MoveBox(
+        ),
+        const _BoxesHeightDivider(),
+        Expanded(
+          child: MoveBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
           ),
-          const SizedBox(height: defaultPadding),
-          ColorBox(
+        ),
+        const _BoxesHeightDivider(),
+        Expanded(
+          child: ColorBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
-            secondColor: const Color(0x00FFFFFF),
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
+            secondaryColor: Colors.transparent,
+            showError: state.showError,
+            errorColor: state.errorColor,
           ),
-          const SizedBox(height: defaultPadding),
-          RotateBox(
+        ),
+        const _BoxesHeightDivider(),
+        Expanded(
+          child: RotateBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -444,42 +440,120 @@ class _RightAnimatedBoxes extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final state = Provider.of<HomePageState>(context);
 
-    return SizedBox(
-      width: 60,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ShowBox(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Expanded(
+          child: ShowBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
+            showError: state.showError,
+            errorColor: state.errorColor,
           ),
-          const SizedBox(height: defaultPadding),
-          MoveBox(
+        ),
+        const _BoxesHeightDivider(),
+        Expanded(
+          child: MoveBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
             axis: Axis.vertical,
           ),
-          const SizedBox(height: defaultPadding),
-          ColorBox(
+        ),
+        const _BoxesHeightDivider(),
+        Expanded(
+          child: ColorBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
-            secondColor: Theme.of(context).colorScheme.secondary,
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
+            secondaryColor: theme.colorScheme.secondary,
+            showError: state.showError,
+            errorColor: state.errorColor,
           ),
-          const SizedBox(height: defaultPadding),
-          SquareCircleBox(
+        ),
+        const _BoxesHeightDivider(),
+        Expanded(
+          child: SquareCircleBox(
             animation: state.animation,
             curve: state.curve,
-            flipped: state.flipped,
             fill: state.fill,
+            flipped: state.flipped,
+            primaryColor: state.primaryColor,
+            showError: state.showError,
+            errorColor: state.errorColor,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Main extends StatelessWidget {
+  const _Main();
+
+  @override
+  Widget build(BuildContext context) => const Padding(
+        padding: EdgeInsets.all(Const.defaultPadding),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Flexible(child: _LeftAnimatedBoxes()),
+            SizedBox(width: 2 * Const.defaultPadding),
+            Flexible(flex: 4, child: _Curve()),
+            SizedBox(width: 2 * Const.defaultPadding),
+            Flexible(child: _RightAnimatedBoxes()),
+          ],
+        ),
+      );
+}
+
+class _CurveInfo extends StatelessWidget {
+  const _CurveInfo();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return Text(
+      state.curve.toString(),
+      textAlign: TextAlign.center,
+    );
+  }
+}
+
+class _Fill extends StatelessWidget {
+  const _Fill();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Const.defaultPadding,
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Fill:',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Switch(
+            value: state.fill,
+            onChanged: (value) => state.fill = value,
           ),
         ],
       ),
@@ -487,64 +561,245 @@ class _RightAnimatedBoxes extends StatelessWidget {
   }
 }
 
-class _Fill extends StatelessWidget {
-  final bool fill;
-  // ignore: avoid_positional_boolean_parameters
-  final void Function(bool fill) onChanged;
-
-  const _Fill({
-    required this.fill,
-    required this.onChanged,
-  });
+class _Flipped extends StatelessWidget {
+  const _Flipped();
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'fill:',
-                overflow: TextOverflow.ellipsis,
-              ),
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Const.defaultPadding,
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Flip it over when it goes back:',
+              overflow: TextOverflow.ellipsis,
             ),
-            Switch(
-              value: fill,
-              onChanged: onChanged,
-            ),
-          ],
-        ),
-      );
+          ),
+          Switch(
+            value: state.flipped,
+            onChanged: (value) => state.flipped = value,
+          ),
+        ],
+      ),
+    );
+  }
 }
 
-class _Flipped extends StatelessWidget {
-  final bool flipped;
-  // ignore: avoid_positional_boolean_parameters
-  final void Function(bool flipped) onChanged;
-
-  const _Flipped({
-    required this.flipped,
-    required this.onChanged,
-  });
+class _ShowError extends StatelessWidget {
+  const _ShowError();
 
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Row(
-          children: [
-            const Expanded(
-              child: Text(
-                'flip it over when it goes back:',
-                overflow: TextOverflow.ellipsis,
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: Const.defaultPadding,
+      ),
+      child: Row(
+        children: [
+          const Expanded(
+            child: Text(
+              'Show error:',
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Switch(
+            value: state.showError,
+            onChanged: (value) => state.showError = value,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Duration extends StatelessWidget {
+  static const List<Duration> _durations = [
+    Duration(milliseconds: 100),
+    Duration(milliseconds: 200),
+    Duration(milliseconds: 300),
+    Duration(milliseconds: 500),
+    Duration(seconds: 1),
+    Duration(seconds: 2),
+    Duration(seconds: 5),
+    Duration(seconds: 10),
+    Duration(seconds: 20),
+  ];
+
+  const _Duration();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return _Slider(
+      label: 'Duration:',
+      enabled: true,
+      value: _durations.indexOf(state.animationDuration).toDouble(),
+      min: 0,
+      max: _durations.length - 1,
+      divisions: _durations.length,
+      onChanged: (value) {
+        state.animationDuration = _durations[value.round()];
+      },
+      valueBuilder: (value) {
+        final s = state.animationDuration.inSeconds;
+        final ms = state.animationDuration.inMilliseconds % 1000;
+
+        return SizedBox(
+          width: 80,
+          child: Text(
+            s == 0 ? '$ms ms' : '$s s${ms == 0 ? '' : ' $ms ms'}',
+            textAlign: TextAlign.end,
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Cubic extends StatelessWidget {
+  const _Cubic();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        _CurveSlider(
+          label: 'Cubic x1:',
+          enabled: state.curve is Cubic,
+          value: state.cubicA,
+          onChanged: (value) => state.cubicA = value,
+        ),
+        _CurveSlider(
+          label: 'Cubic y1:',
+          enabled: state.curve is Cubic,
+          value: state.cubicB,
+          onChanged: (value) => state.cubicB = value,
+        ),
+        _CurveSlider(
+          label: 'Cubic x2:',
+          enabled: state.curve is Cubic,
+          value: state.cubicC,
+          onChanged: (value) => state.cubicC = value,
+        ),
+        _CurveSlider(
+          label: 'Cubic y2:',
+          enabled: state.curve is Cubic,
+          value: state.cubicD,
+          onChanged: (value) => state.cubicD = value,
+        )
+      ],
+    );
+  }
+}
+
+class _Elastic extends StatelessWidget {
+  const _Elastic();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return Row(
+      children: [
+        Expanded(
+          child: _Slider(
+            label: 'Elastic:',
+            enabled: MyCurves.isElastic(state.curve),
+            min: 0,
+            max: 2,
+            divisions: 3,
+            value: state.elasticType.toDouble(),
+            onChanged: (value) => state.elasticType = value.round(),
+            valueBuilder: (value) {
+              var text = '';
+              switch (value.round()) {
+                case 0:
+                  text = 'in';
+                  break;
+                case 1:
+                  text = 'out';
+                  break;
+                case 2:
+                  text = 'in out';
+                  break;
+              }
+
+              return SizedBox(
+                width: 30,
+                child: Text(
+                  text,
+                  textAlign: TextAlign.center,
+                ),
+              );
+            },
+          ),
+        ),
+        Expanded(
+          child: _CurveSlider(
+            enabled: MyCurves.isElastic(state.curve),
+            min: 0.1,
+            max: 2,
+            value: state.elasticPeriod,
+            onChanged: (value) => state.elasticPeriod = value,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CurvesSelector extends StatelessWidget {
+  const _CurvesSelector();
+
+  @override
+  Widget build(BuildContext context) {
+    final state = Provider.of<HomePageState>(context);
+
+    return DropdownButton<String>(
+      value: MyCurves.findByCurve(state.curve),
+      isExpanded: true,
+      menuMaxHeight: 400,
+      onChanged: (value) {
+        if (value != null) {
+          final curve = MyCurves.findByName(value);
+          if (curve != null) {
+            state.curve = curve;
+          }
+        }
+      },
+      items: [
+        for (final name in MyCurves.allCurves)
+          DropdownMenuItem<String>(
+            value: name,
+            child: Padding(
+              padding: const EdgeInsets.all(Const.defaultPadding),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(name),
+                  ),
+                  _SimpleCurve(
+                    curve: MyCurves.findByName(name)!,
+                    curveColor: state.curveColor,
+                  ),
+                ],
               ),
             ),
-            Switch(
-              value: flipped,
-              onChanged: onChanged,
-            ),
-          ],
-        ),
-      );
+          ),
+      ],
+    );
+  }
 }
 
 class _Slider extends StatelessWidget {
@@ -573,7 +828,7 @@ class _Slider extends StatelessWidget {
         opacity: enabled ? 1 : 0.5,
         child: Padding(
           padding: const EdgeInsetsDirectional.symmetric(
-            horizontal: defaultPadding,
+            horizontal: Const.defaultPadding,
           ),
           child: Row(
             children: [

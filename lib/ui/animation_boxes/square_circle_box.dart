@@ -3,21 +3,28 @@ import 'package:flutter/material.dart';
 import 'animation_box.dart';
 
 class SquareCircleBox extends AnimationBox {
-  final Color failColor;
+  final bool showError;
+  final Color errorColor;
 
   const SquareCircleBox({
     super.key,
     required super.animation,
     required super.curve,
+    required super.fill,
     required super.flipped,
-    super.fill = true,
-    this.failColor = Colors.yellow,
+    required super.primaryColor,
+    required this.showError,
+    required this.errorColor,
   });
 
   @override
   void doPaint(Canvas canvas, double value, double px, Paint paint) {
     final radius = value.clamp(0.0, 1.0);
-    if (value != radius) paint.color = failColor;
+
+    if (showError && value != radius) {
+      paint.color = errorColor;
+    }
+
     paint.strokeWidth = 2 * px;
     canvas.drawRRect(
       RRect.fromLTRBAndCorners(

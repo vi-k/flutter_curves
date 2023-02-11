@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 import 'animation_box.dart';
@@ -11,8 +9,9 @@ class MoveBox extends AnimationBox {
     super.key,
     required super.animation,
     required super.curve,
+    required super.fill,
     required super.flipped,
-    super.fill = true,
+    required super.primaryColor,
     this.axis = Axis.horizontal,
   });
 

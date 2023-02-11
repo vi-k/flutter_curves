@@ -8,34 +8,13 @@ class CurvePainter extends CustomPainter {
   final Animation<double> animation;
   final Curve curve;
   final Curve _reversed;
-
-  final axisPaint = Paint()
-    ..style = PaintingStyle.stroke
-    ..color = Colors.black54;
-
-  final grid1Paint = Paint()
-    ..style = PaintingStyle.stroke
-    ..color = Colors.grey.shade300;
-
-  final grid2Paint = Paint()
-    ..style = PaintingStyle.stroke
-    ..color = Colors.grey.shade200;
-
-  final curvePaint = Paint()
-    ..style = PaintingStyle.stroke
-    ..color = Colors.red;
-
-  final cubicMarkerPaint = Paint()
-    ..style = PaintingStyle.fill
-    ..color = Colors.blue.withOpacity(0.5);
-
-  final cubicLinePaint = Paint()
-    ..style = PaintingStyle.stroke
-    ..color = Colors.blue.withOpacity(0.5);
-
-  final valuePaint = Paint()
-    ..style = PaintingStyle.fill
-    ..color = Colors.red;
+  final Paint _curvePaint;
+  final Paint _valuePaint;
+  final Paint _axisPaint;
+  final Paint _gridPrimaryPaint;
+  final Paint _gridSecondaryPaint;
+  final Paint _cubicMarkerPaint;
+  final Paint _cubicLinePaint;
 
   CurvePainter({
     required this.animation,
@@ -43,7 +22,36 @@ class CurvePainter extends CustomPainter {
     required this.mx,
     required this.my,
     bool flipped = false,
-  }) : _reversed = flipped ? curve.flipped : curve;
+    required Color curveColor,
+    required Color axisColor,
+    required Color gridPrimaryColor,
+    required Color gridSecondaryColor,
+    required Color cubicMarkerColor,
+    required Color cubicLineColor,
+    required Color valueColor,
+  })  : _reversed = flipped ? curve.flipped : curve,
+        _curvePaint = Paint()
+          ..style = PaintingStyle.stroke
+          ..color = curveColor,
+        _valuePaint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = valueColor,
+        _axisPaint = Paint()
+          ..style = PaintingStyle.stroke
+          ..color = axisColor,
+        _gridPrimaryPaint = Paint()
+          ..style = PaintingStyle.stroke
+          ..color = gridPrimaryColor,
+        _gridSecondaryPaint = Paint()
+          ..style = PaintingStyle.stroke
+          ..color = gridSecondaryColor,
+        _cubicMarkerPaint = Paint()
+          ..style = PaintingStyle.fill
+          ..color = cubicMarkerColor,
+        _cubicLinePaint = Paint()
+          ..style = PaintingStyle.stroke
+          ..color = cubicLineColor,
+        super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -56,22 +64,24 @@ class CurvePainter extends CustomPainter {
       ..translate(0, -newSize.height)
       ..translate((newSize.width - 1) / 2, (newSize.height - 1) / 2);
 
-    axisPaint.strokeWidth = px;
-    grid1Paint.strokeWidth = px;
-    grid2Paint.strokeWidth = px;
-    curvePaint.strokeWidth = 2 * px;
-    cubicLinePaint.strokeWidth = px;
+    _axisPaint.strokeWidth = px;
+    _gridPrimaryPaint.strokeWidth = px;
+    _gridSecondaryPaint.strokeWidth = px;
+    _curvePaint.strokeWidth = 2 * px;
+    _cubicLinePaint.strokeWidth = px;
 
     // grid by x
+    final offsetY = (my - 1) / 2;
     for (var i = 0; i <= 10; i++) {
-      final paint = i % 5 == 0 ? grid1Paint : grid2Paint;
+      final paint = i % 5 == 0 ? _gridPrimaryPaint : _gridSecondaryPaint;
       final x = i / 10;
-      canvas.drawLine(Offset(x, -0.3), Offset(x, 1.3), paint);
+      canvas.drawLine(Offset(x, -offsetY), Offset(x, 1 + offsetY), paint);
     }
 
     // grid by y
-    for (var i = -3; i <= 13; i++) {
-      final paint = i % 5 == 0 ? grid1Paint : grid2Paint;
+    final d = ((my - 1) / 2 * 10).round();
+    for (var i = -d; i <= 10 + d; i++) {
+      final paint = i % 5 == 0 ? _gridPrimaryPaint : _gridSecondaryPaint;
       final x = i / 10;
       canvas.drawLine(Offset(0, x), Offset(1, x), paint);
     }
@@ -84,15 +94,16 @@ class CurvePainter extends CustomPainter {
     const arrowLength = 0.06;
     const arrowWidth = 0.01;
     canvas
-      ..drawLine(startX, endX, axisPaint)
-      ..drawLine(endX - const Offset(arrowLength, arrowWidth), endX, axisPaint)
-      ..drawLine(endX - const Offset(arrowLength, -arrowWidth), endX, axisPaint)
-      ..drawLine(startY, endY, axisPaint)
-      ..drawLine(endY - const Offset(arrowWidth, arrowLength), endY, axisPaint)
+      ..drawLine(startX, endX, _axisPaint)
+      ..drawLine(endX - const Offset(arrowLength, arrowWidth), endX, _axisPaint)
       ..drawLine(
-          endY - const Offset(-arrowWidth, arrowLength), endY, axisPaint);
+          endX - const Offset(arrowLength, -arrowWidth), endX, _axisPaint)
+      ..drawLine(startY, endY, _axisPaint)
+      ..drawLine(endY - const Offset(arrowWidth, arrowLength), endY, _axisPaint)
+      ..drawLine(
+          endY - const Offset(-arrowWidth, arrowLength), endY, _axisPaint);
 
-    // кривая
+    // curve
     final path = Path()..moveTo(0, 0);
 
     final step = px;
@@ -101,25 +112,32 @@ class CurvePainter extends CustomPainter {
     }
     path.lineTo(1, 1);
 
-    canvas.drawPath(path, curvePaint);
+    canvas.drawPath(path, _curvePaint);
 
+    // cubic lines
     if (curve is Cubic) {
       final cubic = curve as Cubic;
 
       canvas
-        ..drawLine(Offset.zero, Offset(cubic.a, cubic.b), cubicLinePaint)
-        ..drawLine(Offset(cubic.c, cubic.d), const Offset(1, 1), cubicLinePaint)
-        ..drawCircle(Offset.zero, 3 * px, cubicMarkerPaint)
-        ..drawCircle(Offset(cubic.a, cubic.b), 3 * px, cubicMarkerPaint)
-        ..drawCircle(Offset(cubic.c, cubic.d), 3 * px, cubicMarkerPaint)
-        ..drawCircle(const Offset(1, 1), 3 * px, cubicMarkerPaint);
+        ..drawLine(Offset.zero, Offset(cubic.a, cubic.b), _cubicLinePaint)
+        ..drawLine(
+            Offset(cubic.c, cubic.d), const Offset(1, 1), _cubicLinePaint)
+        ..drawCircle(Offset.zero, 3 * px, _cubicMarkerPaint)
+        ..drawCircle(Offset(cubic.a, cubic.b), 3 * px, _cubicMarkerPaint)
+        ..drawCircle(Offset(cubic.c, cubic.d), 3 * px, _cubicMarkerPaint)
+        ..drawCircle(const Offset(1, 1), 3 * px, _cubicMarkerPaint);
     }
 
+    // value
     final value = animation.value < 0
         ? _reversed.transform(-animation.value)
         : curve.transform(animation.value);
 
-    canvas.drawCircle(Offset(animation.value.abs(), value), 5 * px, valuePaint);
+    canvas.drawCircle(
+      Offset(animation.value.abs(), value),
+      5 * px,
+      _valuePaint,
+    );
   }
 
   @override

@@ -3,20 +3,26 @@ import 'package:flutter/material.dart';
 import 'animation_box.dart';
 
 class ScaleBox extends AnimationBox {
-  final Color failColor;
+  final bool showError;
+  final Color errorColor;
 
   const ScaleBox({
     super.key,
     required super.animation,
     required super.curve,
+    required super.fill,
     required super.flipped,
-    super.fill = true,
-    this.failColor = Colors.yellow,
+    required super.primaryColor,
+    required this.showError,
+    required this.errorColor,
   });
 
   @override
   void doPaint(Canvas canvas, double value, double px, Paint paint) {
-    if (value < 0) paint.color = failColor;
+    if (showError && value < 0) {
+      paint.color = errorColor;
+    }
+
     canvas
       ..scale(value)
       ..drawRect(

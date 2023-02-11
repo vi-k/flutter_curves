@@ -9,10 +9,10 @@ class AnimationPainter extends CustomPainter {
   final Animation<double> animation;
   final Curve curve;
   final Curve _reversed;
+  final bool fill;
   final Painter onPaint;
   final bool keepRatio;
   final Color color;
-  final bool fill;
 
   AnimationPainter({
     required this.animation,

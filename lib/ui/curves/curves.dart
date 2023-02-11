@@ -48,7 +48,9 @@ class MyCurves {
     'Curves.elasticInOut': Curves.elasticInOut,
   };
 
-  static List<String> get allCurves => List.unmodifiable(_curves.keys);
+  static List<String>? _allCurves;
+  static List<String> get allCurves =>
+      _allCurves ??= List.unmodifiable(_curves.keys);
 
   static bool isElastic(Curve curve) =>
       curve is ElasticInCurve ||

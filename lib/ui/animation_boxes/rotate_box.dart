@@ -8,8 +8,9 @@ class RotateBox extends AnimationBox {
     super.key,
     required super.animation,
     required super.curve,
+    required super.fill,
     required super.flipped,
-    super.fill = true,
+    required super.primaryColor,
   });
 
   @override
