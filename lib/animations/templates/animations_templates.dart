@@ -15,8 +15,7 @@ import '../animation/what.dart';
 final List<AnimationSettings> defaultFirstAnimations = [
   animationsTemplates[0],
   animationsTemplates[3],
-  // animationsTemplates[6],
-  animationsTemplates[19],
+  animationsTemplates[6],
   animationsTemplates[8],
 ];
 

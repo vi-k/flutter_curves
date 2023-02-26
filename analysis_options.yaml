@@ -3,9 +3,9 @@ include: package:flutter_lints/flutter.yaml
 analyzer:
   # plugins:
   #   - dart_code_metrics
-  enable-experiment:
-    - records
-    - patterns
+  # enable-experiment:
+  #   - records
+  #   - patterns
 
   exclude:
     # Web

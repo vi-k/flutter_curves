@@ -1,10 +1,10 @@
 name: curve_demo
 description: Demonstration of animation curves.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-version: 0.3.0
+version: 0.3.1
 
 environment:
-  sdk: '>=3.0.0-204.0.dev <4.0.0'
+  sdk: '>=2.19.0 <3.0.0'
 
 dependencies:
   flutter:

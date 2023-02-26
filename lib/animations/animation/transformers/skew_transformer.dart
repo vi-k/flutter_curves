@@ -24,8 +24,10 @@ class SkewTransformer extends DoubleTypeTransformer with HasAlignment {
     switch (axis) {
       case Axis.horizontal:
         state.canvas.skew(transformedValue, 0);
+        break;
       case Axis.vertical:
         state.canvas.skew(0, transformedValue);
+        break;
       default:
         state.canvas.skew(transformedValue, transformedValue);
     }

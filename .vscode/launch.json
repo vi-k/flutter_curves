@@ -8,21 +8,21 @@
             "name": "curve_demo",
             "request": "launch",
             "type": "dart",
-            "toolArgs": ["--enable-experiment=records,patterns"],
+            // "toolArgs": ["--enable-experiment=records,patterns"],
         },
         {
             "name": "curve_demo (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile",
-            "toolArgs": ["--enable-experiment=records,patterns"],
+            // "toolArgs": ["--enable-experiment=records,patterns"],
         },
         {
             "name": "curve_demo (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release",
-            "toolArgs": ["--enable-experiment=records,patterns"],
+            // "toolArgs": ["--enable-experiment=records,patterns"],
         }
     ]
 }

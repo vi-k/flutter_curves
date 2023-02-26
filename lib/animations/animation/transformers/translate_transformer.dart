@@ -20,8 +20,10 @@ class TranslateTransformer extends DoubleTypeTransformer {
     switch (axis) {
       case Axis.horizontal:
         state.canvas.translate(transformedValue, 0);
+        break;
       case Axis.vertical:
         state.canvas.translate(0, transformedValue);
+        break;
       default:
         state.canvas.translate(transformedValue, transformedValue);
     }

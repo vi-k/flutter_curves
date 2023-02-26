@@ -24,12 +24,18 @@ class DraftColor {
 
   const DraftColor._(this._draft, this._draftOpacity) : _color = null;
 
-  const DraftColor.box([double opacity = 1]) : this._(_DraftColorType.box, opacity);
-  const DraftColor.alternate([double opacity = 1]) : this._(_DraftColorType.alternate, opacity);
-  const DraftColor.textOnBox([double opacity = 1]) : this._(_DraftColorType.textOnBox, opacity);
-  const DraftColor.textOutBox([double opacity = 1]) : this._(_DraftColorType.textOutBox, opacity);
+  const DraftColor.box([double opacity = 1])
+      : this._(_DraftColorType.box, opacity);
+  const DraftColor.alternate([double opacity = 1])
+      : this._(_DraftColorType.alternate, opacity);
+  const DraftColor.textOnBox([double opacity = 1])
+      : this._(_DraftColorType.textOnBox, opacity);
+  const DraftColor.textOutBox([double opacity = 1])
+      : this._(_DraftColorType.textOutBox, opacity);
 
-  const DraftColor(this._color) : _draft = _DraftColorType.notDraft, _draftOpacity = 1;
+  const DraftColor(this._color)
+      : _draft = _DraftColorType.notDraft,
+        _draftOpacity = 1;
 
   Color get color => _color!;
 }
@@ -46,16 +52,20 @@ class ColorTransformer extends Transformer<DraftColor> {
           end: end ?? const DraftColor.alternate(),
         );
 
-  static Color colorFromDraft(AnimationState state, DraftColor draft) =>
-     switch(draft._draft) {
-      _DraftColorType.box => state.boxColor,
-      _DraftColorType.alternate => state.alternateColor,
-      _DraftColorType.textOnBox => state.textOnBoxColor,
-      _DraftColorType.textOutBox => state.textOutBoxColor,
-      _DraftColorType.notDraft => draft.color,
-    }.withOpacity(draft._draftOpacity);
-
-
+  static Color colorFromDraft(AnimationState state, DraftColor draft) {
+    switch (draft._draft) {
+      case _DraftColorType.box:
+        return state.boxColor.withOpacity(draft._draftOpacity);
+      case _DraftColorType.alternate:
+        return state.alternateColor.withOpacity(draft._draftOpacity);
+      case _DraftColorType.textOnBox:
+        return state.textOnBoxColor.withOpacity(draft._draftOpacity);
+      case _DraftColorType.textOutBox:
+        return state.textOutBoxColor.withOpacity(draft._draftOpacity);
+      case _DraftColorType.notDraft:
+        return draft.color.withOpacity(draft._draftOpacity);
+    }
+  }
 
   @override
   DraftColor transform(AnimationState state, double value) {
@@ -68,9 +78,15 @@ class ColorTransformer extends Transformer<DraftColor> {
   @override
   void execute(AnimationState state, DraftColor transformedValue) {
     switch (colorType) {
-      case ColorType.box: state.finalizedBoxColor = transformedValue.color;
-      case ColorType.textOnBox: state.finalizedTextOnBoxColor = transformedValue.color;
-      case ColorType.textOutBox: state.finalizedTextOutBoxColor = transformedValue.color;
+      case ColorType.box:
+        state.finalizedBoxColor = transformedValue.color;
+        break;
+      case ColorType.textOnBox:
+        state.finalizedTextOnBoxColor = transformedValue.color;
+        break;
+      case ColorType.textOutBox:
+        state.finalizedTextOutBoxColor = transformedValue.color;
+        break;
     }
   }
 }

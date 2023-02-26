@@ -30,8 +30,10 @@ class ScaleTransformer extends DoubleTypeTransformer
     switch (axis) {
       case Axis.horizontal:
         state.canvas.scale(transformedValue, 1);
+        break;
       case Axis.vertical:
         state.canvas.scale(1, transformedValue);
+        break;
       default:
         state.canvas.scale(transformedValue, transformedValue);
     }
