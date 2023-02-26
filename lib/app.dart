@@ -1,9 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_scope/flutter_scope.dart';
 
-import 'home.dart';
+import 'pages/home_page/home_page.dart';
 
 class App extends StatefulWidget {
   static const String title = "Curve's Demo";
@@ -38,18 +36,19 @@ class AppState extends State<App> {
   }
 
   @override
-  Widget build(BuildContext context) => Provider.value(
+  Widget build(BuildContext context) => Scope(
         value: this,
-        updateShouldNotify: (_, __) => true,
         child: MaterialApp(
           title: App.title,
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(
               brightness: brightness,
               seedColor: Colors.deepPurple,
-              secondary: brightness == Brightness.light
-                  ? Colors.cyan
-                  : Colors.cyan.shade800,
+              secondary:
+                  brightness == Brightness.light ? Colors.red : Colors.yellow,
+              tertiary: brightness == Brightness.light
+                  ? Colors.blue
+                  : Colors.blue.shade700,
             ),
             useMaterial3: true,
           ),

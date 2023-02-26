@@ -5,6 +5,7 @@ analyzer:
   #   - dart_code_metrics
   enable-experiment:
     - records
+    - patterns
 
   exclude:
     # Web

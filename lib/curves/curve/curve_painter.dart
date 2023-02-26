@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class CurvePainter extends CustomPainter {
-  final double mx;
-  final double my;
+  final double horisontalMultiplier;
+  final double verticalMultiplier;
   final Animation<double> animation;
   final Curve curve;
   final Curve _reversed;
@@ -19,15 +19,15 @@ class CurvePainter extends CustomPainter {
   CurvePainter({
     required this.animation,
     required this.curve,
-    required this.mx,
-    required this.my,
+    required this.horisontalMultiplier,
+    required this.verticalMultiplier,
     bool flipped = false,
     required Color curveColor,
     required Color axisColor,
     required Color gridPrimaryColor,
     required Color gridSecondaryColor,
-    required Color cubicMarkerColor,
-    required Color cubicLineColor,
+    required Color guideMarkerColor,
+    required Color guideLineColor,
     required Color valueColor,
   })  : _reversed = flipped ? curve.flipped : curve,
         _curvePaint = Paint()
@@ -47,20 +47,23 @@ class CurvePainter extends CustomPainter {
           ..color = gridSecondaryColor,
         _cubicMarkerPaint = Paint()
           ..style = PaintingStyle.fill
-          ..color = cubicMarkerColor,
+          ..color = guideMarkerColor,
         _cubicLinePaint = Paint()
           ..style = PaintingStyle.stroke
-          ..color = cubicLineColor,
+          ..color = guideLineColor,
         super(repaint: animation);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final k = math.min(size.width / mx, size.height / my);
-    final newSize = Size(size.width / k, size.height / k);
-    final px = 1 / k;
+    final ratio = math.min(
+      size.width / horisontalMultiplier,
+      size.height / verticalMultiplier,
+    );
+    final newSize = Size(size.width / ratio, size.height / ratio);
+    final px = 1 / ratio;
 
     canvas
-      ..scale(k, -k)
+      ..scale(ratio, -ratio)
       ..translate(0, -newSize.height)
       ..translate((newSize.width - 1) / 2, (newSize.height - 1) / 2);
 
@@ -71,19 +74,21 @@ class CurvePainter extends CustomPainter {
     _cubicLinePaint.strokeWidth = px;
 
     // grid by x
-    final offsetY = (my - 1) / 2;
-    for (var i = 0; i <= 10; i++) {
+    final offsetY = (verticalMultiplier - 1) / 2;
+    final dx = ((horisontalMultiplier - 1) / 2 * 10).round();
+    for (var i = -dx; i <= 10 + dx; i++) {
       final paint = i % 5 == 0 ? _gridPrimaryPaint : _gridSecondaryPaint;
       final x = i / 10;
       canvas.drawLine(Offset(x, -offsetY), Offset(x, 1 + offsetY), paint);
     }
 
     // grid by y
-    final d = ((my - 1) / 2 * 10).round();
-    for (var i = -d; i <= 10 + d; i++) {
+    final offsetX = (horisontalMultiplier - 1) / 2;
+    final dy = ((verticalMultiplier - 1) / 2 * 10).round();
+    for (var i = -dy; i <= 10 + dy; i++) {
       final paint = i % 5 == 0 ? _gridPrimaryPaint : _gridSecondaryPaint;
-      final x = i / 10;
-      canvas.drawLine(Offset(0, x), Offset(1, x), paint);
+      final y = i / 10;
+      canvas.drawLine(Offset(-offsetX, y), Offset(1 + offsetX, y), paint);
     }
 
     // axises
@@ -104,6 +109,7 @@ class CurvePainter extends CustomPainter {
           endY - const Offset(-arrowWidth, arrowLength), endY, _axisPaint);
 
     // curve
+    final curve = this.curve;
     final path = Path()..moveTo(0, 0);
 
     final step = px;
@@ -116,15 +122,26 @@ class CurvePainter extends CustomPainter {
 
     // cubic lines
     if (curve is Cubic) {
-      final cubic = curve as Cubic;
-
       canvas
-        ..drawLine(Offset.zero, Offset(cubic.a, cubic.b), _cubicLinePaint)
+        ..drawLine(Offset.zero, Offset(curve.a, curve.b), _cubicLinePaint)
         ..drawLine(
-            Offset(cubic.c, cubic.d), const Offset(1, 1), _cubicLinePaint)
+            const Offset(1, 1), Offset(curve.c, curve.d), _cubicLinePaint)
         ..drawCircle(Offset.zero, 3 * px, _cubicMarkerPaint)
-        ..drawCircle(Offset(cubic.a, cubic.b), 3 * px, _cubicMarkerPaint)
-        ..drawCircle(Offset(cubic.c, cubic.d), 3 * px, _cubicMarkerPaint)
+        ..drawCircle(Offset(curve.a, curve.b), 3 * px, _cubicMarkerPaint)
+        ..drawCircle(Offset(curve.c, curve.d), 3 * px, _cubicMarkerPaint)
+        ..drawCircle(const Offset(1, 1), 3 * px, _cubicMarkerPaint);
+    } else if (curve is ThreePointCubic) {
+      canvas
+        ..drawLine(Offset.zero, curve.a1, _cubicLinePaint)
+        ..drawLine(curve.midpoint, curve.b1, _cubicLinePaint)
+        ..drawLine(curve.midpoint, curve.a2, _cubicLinePaint)
+        ..drawLine(const Offset(1, 1), curve.b2, _cubicLinePaint)
+        ..drawCircle(Offset.zero, 3 * px, _cubicMarkerPaint)
+        ..drawCircle(curve.a1, 3 * px, _cubicMarkerPaint)
+        ..drawCircle(curve.b1, 3 * px, _cubicMarkerPaint)
+        ..drawCircle(curve.midpoint, 3 * px, _cubicMarkerPaint)
+        ..drawCircle(curve.a2, 3 * px, _cubicMarkerPaint)
+        ..drawCircle(curve.b2, 3 * px, _cubicMarkerPaint)
         ..drawCircle(const Offset(1, 1), 3 * px, _cubicMarkerPaint);
     }
 
