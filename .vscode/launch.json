@@ -5,20 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "curve_demo",
+            "name": "flutter_curves",
             "request": "launch",
             "type": "dart",
             // "toolArgs": ["--enable-experiment=records,patterns"],
         },
         {
-            "name": "curve_demo (profile mode)",
+            "name": "flutter_curves (profile mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "profile",
             // "toolArgs": ["--enable-experiment=records,patterns"],
         },
         {
-            "name": "curve_demo (release mode)",
+            "name": "flutter_curves (release mode)",
             "request": "launch",
             "type": "dart",
             "flutterMode": "release",

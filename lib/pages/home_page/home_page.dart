@@ -74,15 +74,17 @@ class HomePage extends ScopeRoot<HomePageController>
                           ],
                         ),
                       ),
-                      const VerticalDivider(),
+                      const VerticalDivider(
+                        width: 1,
+                      ),
                       Expanded(
                         flex: constraints.maxHeight.round(),
                         child: ListView(
                           children: const [
                             _CurvesSelector(),
-                            _Flipped(),
                             _Duration(),
                             _Pause(),
+                            _Flipped(),
                             _Cubic(),
                             _Elastic(),
                           ],
@@ -97,13 +99,12 @@ class HomePage extends ScopeRoot<HomePageController>
                       const _CurveInfo(),
                       const Divider(),
                       Expanded(
-                        flex: 3,
                         child: ListView(
                           children: const [
                             _CurvesSelector(),
-                            _Flipped(),
                             _Duration(),
                             _Pause(),
+                            _Flipped(),
                             _Cubic(),
                             _Elastic(),
                           ],
@@ -321,8 +322,10 @@ class _Flipped extends ScopeWidget<HomePageController> {
 
   @override
   Widget build(BuildContext context, HomePageController scope) => Padding(
-        padding: const EdgeInsets.symmetric(
-          horizontal: Const.defaultPadding,
+        padding: const EdgeInsets.only(
+          top: Const.defaultPadding,
+          left: Const.defaultPadding,
+          right: Const.defaultPadding,
         ),
         child: Row(
           children: [
@@ -351,8 +354,6 @@ class _Duration extends ScopeWidget<HomePageController> {
         builder: (context, child) => Padding(
           padding: const EdgeInsets.only(
             top: Const.defaultPadding,
-            left: Const.defaultPadding,
-            right: Const.defaultPadding,
           ),
           child: DurationSelect(
             label: const Text('Duration:'),
@@ -376,8 +377,6 @@ class _Pause extends ScopeWidget<HomePageController> {
         builder: (context, child) => Padding(
           padding: const EdgeInsets.only(
             top: Const.defaultPadding,
-            left: Const.defaultPadding,
-            right: Const.defaultPadding,
           ),
           child: DurationSelect(
             label: const Text('Pause:'),

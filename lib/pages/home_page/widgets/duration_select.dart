@@ -1,3 +1,4 @@
+import 'package:auto_scroll_band/auto_scroll_band.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
@@ -24,26 +25,71 @@ class DurationSelect extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Wrap(
-        spacing: Const.defaultPadding,
-        runSpacing: Const.defaultPadding,
-        alignment: WrapAlignment.start,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          if (label != null) label!,
-          for (final duration in durations)
-            ChoiceChip(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.circular(100)),
-              ),
-              label: Text(_toString(duration)),
-              selected: duration == value,
-              onSelected: (value) {
-                onChanged?.call(duration);
-              },
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (label != null)
+          Padding(
+            padding: const EdgeInsets.only(
+              left: Const.defaultPadding,
+              right: Const.defaultPadding,
+              bottom: Const.defaultPadding,
             ),
-        ],
-      );
+            child: label!,
+          ),
+        AutoScrollBand(
+          padding: const EdgeInsets.symmetric(
+            horizontal: Const.defaultPadding,
+          ),
+          startExtraIndent: Const.defaultPadding * 3,
+          endExtraIndent: Const.defaultPadding * 3,
+          selected: (index) => durations[index] == value,
+          spacing: Const.defaultPadding,
+          children: [
+            for (final duration in durations)
+              RawChip(
+                backgroundColor: theme.colorScheme.primaryContainer,
+                selectedColor: theme.colorScheme.primary,
+                checkmarkColor: theme.colorScheme.onPrimary,
+                labelStyle: TextStyle(
+                  color: duration == value
+                      ? theme.colorScheme.onPrimary
+                      : theme.colorScheme.onPrimaryContainer,
+                ),
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                label: Text(_toString(duration)),
+                selected: duration == value,
+                onSelected: (value) {
+                  onChanged?.call(duration);
+                },
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+  // @override
+  // Widget build(BuildContext context) => Wrap(
+  //       spacing: Const.defaultPadding,
+  //       runSpacing: Const.defaultPadding,
+  //       alignment: WrapAlignment.start,
+  //       crossAxisAlignment: WrapCrossAlignment.center,
+  //       children: [
+  //         if (label != null) label!,
+  //         for (final duration in durations)
+  //           ChoiceChip(
+  //             materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+  //             label: Text(_toString(duration)),
+  //             selected: duration == value,
+  //             onSelected: (value) {
+  //               onChanged?.call(duration);
+  //             },
+  //           ),
+  //       ],
+  //     );
 
   // SegmentedButton<Duration>(
   //       segments: [

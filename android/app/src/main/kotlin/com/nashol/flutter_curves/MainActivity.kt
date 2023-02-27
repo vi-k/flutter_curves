@@ -1,4 +1,4 @@
-package com.example.curve_demo
+package com.nashol.flutter_curves
 
 import io.flutter.embedding.android.FlutterActivity
 

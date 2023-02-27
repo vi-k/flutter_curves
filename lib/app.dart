@@ -4,7 +4,7 @@ import 'package:flutter_scope/flutter_scope.dart';
 import 'pages/home_page/home_page.dart';
 
 class App extends StatefulWidget {
-  static const String title = "Curve's Demo";
+  static const String title = 'Flutter curves';
 
   const App({super.key});
 

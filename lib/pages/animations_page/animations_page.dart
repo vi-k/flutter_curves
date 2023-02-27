@@ -1,8 +1,8 @@
-import 'package:curve_demo/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_scope/flutter_scope.dart';
 
 import '../../animations/export.dart';
+import '../../constants.dart';
 import '../home_page/home_page_controller.dart';
 import 'animations_page_controller.dart';
 
@@ -37,17 +37,25 @@ class AnimationsPage extends ScopeRoot<AnimationsPageController>
     scope.alreadyOnList.clear();
 
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        title: const Text('Select an animation'),
+      ),
       body: ListView(
         padding: const EdgeInsets.all(Const.defaultPadding),
         children: [
-          _ClassRow<TranslateTransformer>(animationsTemplates),
-          _ClassRow<ScaleTransformer>(animationsTemplates),
-          _ClassRow<RotateTransformer>(animationsTemplates),
-          _ClassRow<ColorTransformer>(animationsTemplates),
-          _ClassRow<BoxRadiusTransformer>(animationsTemplates),
-          _ClassRow<SkewTransformer>(animationsTemplates),
-          _ClassRow<MatrixTransformer>(animationsTemplates),
+          _ClassRow<TranslateTransformer>('Translate', animationsTemplates),
+          const SizedBox(height: Const.defaultPadding),
+          _ClassRow<ScaleTransformer>('Scale', animationsTemplates),
+          const SizedBox(height: Const.defaultPadding),
+          _ClassRow<RotateTransformer>('Rotate', animationsTemplates),
+          const SizedBox(height: Const.defaultPadding),
+          _ClassRow<SkewTransformer>('Skew', animationsTemplates),
+          const SizedBox(height: Const.defaultPadding),
+          _ClassRow<ColorTransformer>('Color', animationsTemplates),
+          const SizedBox(height: Const.defaultPadding),
+          _ClassRow<BoxRadiusTransformer>('BorderRadius', animationsTemplates),
+          const SizedBox(height: Const.defaultPadding),
+          _ClassRow<MatrixTransformer>('Matrix', animationsTemplates),
         ],
       ),
     );
@@ -55,9 +63,10 @@ class AnimationsPage extends ScopeRoot<AnimationsPageController>
 }
 
 class _ClassRow<T extends Transformer<Object?>> extends StatefulWidget {
+  final String name;
   final List<AnimationSettings> templates;
 
-  const _ClassRow(this.templates);
+  const _ClassRow(this.name, this.templates);
 
   @override
   State<_ClassRow<T>> createState() => _ClassRowState<T>();
@@ -82,7 +91,7 @@ class _ClassRowState<T extends Transformer<Object?>>
         builder: (context, scope, _) => Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(T.toString()),
+            Text('${widget.name}:'),
             Wrap(
               spacing: Const.defaultPadding,
               runSpacing: Const.defaultPadding,

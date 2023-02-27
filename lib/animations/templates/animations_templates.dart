@@ -251,6 +251,31 @@ final List<AnimationSettings> animationsTemplates = [
     ),
   ),
   AnimationSettings(
+    rect: const Rect.fromLTRB(-0.9, -0.9, 0.9, 0.9),
+    transformers: [
+      const BoxRadiusTransformer(
+        begin: BorderRadius.all(Radius.circular(1)),
+        end: BorderRadius.all(Radius.circular(1)),
+      ),
+      MatrixTransformer(
+        begin: 0 * math.pi / 180,
+        end: -180 * math.pi / 180,
+        matrix: (value) => (Matrix4.zero()
+              ..setValues(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 1)
+              ..translate(0.0, 0, 2)
+              ..rotateY(value)
+              ..translate(0.0, 0, -2)
+              ..rotateZ(-2 * value))
+            .storage,
+      ),
+    ],
+    what: const What(
+      fill: true,
+      text: 'A',
+      fontSize: 1.6,
+    ),
+  ),
+  AnimationSettings(
     rect: const Rect.fromLTRB(-1, -2, 1, 1),
     transformers: [
       MatrixTransformer(
@@ -277,43 +302,6 @@ final List<AnimationSettings> animationsTemplates = [
     what: const What(
       text: 'A LONG\nTIME AGO\nIN A GALAXY\nFAR, FAR AWAY...',
       fontSize: 0.4,
-    ),
-  ),
-  AnimationSettings(
-    transformers: [
-      MatrixTransformer(
-        begin: 0 * math.pi / 180,
-        end: -360 * math.pi / 180,
-        matrix: (value) => (Matrix4.zero()
-              ..setValues(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0.5, 0, 0, 0, 1)
-              ..translate(0.0, 0, 2)
-              ..rotateY(value)
-              ..translate(0.0, 0, -2)
-              ..rotateZ(-2.5 * value)
-            //
-            )
-            .storage,
-      ),
-    ],
-    what: const What(
-      icon: Icons.add,
-      fontSize: 1.6,
-    ),
-  ),
-  const AnimationSettings(
-    transformers: [
-      RotateTransformer(
-        end: 315 * math.pi / 180,
-      ),
-      ColorTransformer(
-        colorType: ColorType.textOutBox,
-        begin: DraftColor.textOutBox(),
-        end: DraftColor.textOutBox(0.1),
-      ),
-    ],
-    what: What(
-      icon: Icons.add,
-      fontSize: 1.6,
     ),
   ),
 ];

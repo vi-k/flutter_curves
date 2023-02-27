@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.curve_demo">
+    package="com.nashol.flutter_curves">
    <application
-        android:label="curve_demo"
+        android:label="com.nashol.flutter_curves"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

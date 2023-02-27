@@ -1,5 +1,6 @@
-import 'package:curve_demo/animations/animation/animation_state.dart';
 import 'package:flutter/material.dart';
+
+import '../animation_state.dart';
 
 abstract class Transformer<T> {
   final T begin;

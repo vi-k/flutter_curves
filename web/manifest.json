@@ -1,6 +1,6 @@
 {
-    "name": "curve_demo",
-    "short_name": "curve_demo",
+    "name": "flutter_curves",
+    "short_name": "flutter_curves",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

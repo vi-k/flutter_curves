@@ -1,8 +1,8 @@
-import 'package:curve_demo/animations/animation/animation_state.dart';
 import 'package:flutter/material.dart';
 
 import '../animation/animation_painter.dart';
 import '../animation/animation_settings.dart';
+import '../animation/animation_state.dart';
 
 class AnimationBox extends StatelessWidget {
   final AnimationSettings settings;
