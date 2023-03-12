@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_scope/flutter_scope.dart';
 
@@ -8,10 +9,10 @@ import '../../constants.dart';
 import '../../curves/export.dart';
 import '../../curves/widgets/curve_box.dart';
 import 'home_page_controller.dart';
-import 'widgets/animations_band.dart';
 import 'widgets/duration_select.dart';
+import 'widgets/motions_band.dart';
 
-const List<Duration> _durations = [
+const IList<Duration> _durations = IListConst([
   Duration(milliseconds: 100),
   Duration(milliseconds: 200),
   Duration(milliseconds: 300),
@@ -23,9 +24,9 @@ const List<Duration> _durations = [
   Duration(seconds: 10),
   Duration(seconds: 20),
   Duration(seconds: 30),
-];
+]);
 
-const List<Duration> _pauses = [
+const IList<Duration> _pauses = IListConst([
   Duration.zero,
   Duration(milliseconds: 100),
   Duration(milliseconds: 200),
@@ -35,11 +36,14 @@ const List<Duration> _pauses = [
   Duration(seconds: 2),
   Duration(seconds: 3),
   Duration(seconds: 5),
-];
+]);
 
 class HomePage extends ScopeRoot<HomePageController>
     with ScopeSingleTickerProviderMixin {
-  const HomePage({super.key, required this.title});
+  const HomePage({
+    super.key,
+    required this.title,
+  });
 
   final String title;
 
@@ -63,9 +67,8 @@ class HomePage extends ScopeRoot<HomePageController>
             constraints.maxWidth > constraints.maxHeight
                 ? Row(
                     children: [
-                      Expanded(
-                        flex: constraints.maxWidth.round(),
-                        child: const Column(
+                      const Expanded(
+                        child: Column(
                           children: [
                             Expanded(
                               child: _Main(),
@@ -74,11 +77,8 @@ class HomePage extends ScopeRoot<HomePageController>
                           ],
                         ),
                       ),
-                      const VerticalDivider(
-                        width: 1,
-                      ),
+                      const VerticalDivider(width: 1),
                       Expanded(
-                        flex: constraints.maxHeight.round(),
                         child: ListView(
                           children: const [
                             _CurvesSelector(),
@@ -122,6 +122,7 @@ class _ThemeSwitcher extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final appState = Scope.watch<AppState>(context);
 
     return AnimatedSwitcher(
@@ -141,7 +142,7 @@ class _ThemeSwitcher extends StatelessWidget {
           ...previous,
         ],
       ),
-      child: appState.brightness == Brightness.light
+      child: theme.brightness == Brightness.light
           ? IconButton(
               key: const ValueKey('night'),
               onPressed: () => appState.brightness = Brightness.dark,
@@ -164,19 +165,19 @@ class _Main extends ScopeWidget<HomePageController> {
         padding: const EdgeInsets.all(Const.defaultPadding),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final firstAnimations = scope.firstAnimations;
-            final secondAnimations = scope.secondAnimations;
+            final firstMotions = scope.firstMotions;
+            final secondMotions = scope.secondMotions;
             final count = math.max(
-              firstAnimations.length,
-              secondAnimations.length,
+              firstMotions.length,
+              secondMotions.length,
             );
 
             final curveM = count + (count - 1) * Const.separatorFactor;
-            final size = (firstAnimations.isEmpty ? 0 : 1) +
+            final size = (firstMotions.isEmpty ? 0 : 1) +
                 Const.separatorFactor * 2 +
                 curveM +
                 Const.separatorFactor * 2 +
-                (secondAnimations.isEmpty ? 0 : 1);
+                (secondMotions.isEmpty ? 0 : 1);
 
             late Axis direction;
             late double boxSize;
@@ -186,8 +187,12 @@ class _Main extends ScopeWidget<HomePageController> {
               direction = Axis.horizontal;
             }
 
+            boxSize = math.min(boxSize, Const.maxBoxSize);
+
             if (constraints.maxHeight.isFinite) {
-              final vBoxSize = constraints.maxHeight / size;
+              var vBoxSize = constraints.maxHeight / size;
+              vBoxSize = math.min(vBoxSize, Const.maxBoxSize);
+
               if (constraints.maxWidth.isFinite && vBoxSize > boxSize) {
                 direction = Axis.vertical;
                 final hBoxSize = constraints.maxWidth / curveM;
@@ -202,61 +207,59 @@ class _Main extends ScopeWidget<HomePageController> {
               }
             }
 
-            final separatorSize = boxSize / 10;
+            final separatorSize = boxSize * Const.separatorFactor;
             final curveHeight = curveM * boxSize;
             final curveWidth = curveHeight /
                 Const.curveVerticalMultiplier *
                 Const.curveHorisontalMultiplier;
             final separator = SizedBox.square(dimension: 2 * separatorSize);
 
+            var content = [
+              MotionsBand(
+                motions: firstMotions,
+                heroTag: 'first-motions',
+                count: count,
+                boxSize: boxSize,
+                separatorSize: separatorSize,
+                direction: direction == Axis.horizontal
+                    ? Axis.vertical
+                    : Axis.horizontal,
+                animation: scope.motionController.animation,
+                curve: scope.curve,
+                flipped: scope.flipped,
+                onTap: scope.selectFirstMotion,
+              ),
+              separator,
+              SizedBox(
+                width: curveWidth,
+                height: curveHeight,
+                child: const _Curve(),
+              ),
+              separator,
+              MotionsBand(
+                motions: secondMotions,
+                heroTag: 'second-motions',
+                count: count,
+                boxSize: boxSize,
+                separatorSize: separatorSize,
+                direction: direction == Axis.horizontal
+                    ? Axis.vertical
+                    : Axis.horizontal,
+                animation: scope.motionController.animation,
+                curve: scope.curve,
+                flipped: scope.flipped,
+                onTap: scope.selectSecondMotion,
+              ),
+            ];
+
+            if (direction == Axis.horizontal) {
+              content = content.reversed.toList();
+            }
+
             return Flex(
               direction: direction,
               mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                AnimationsBand(
-                  animations: firstAnimations,
-                  heroTag: 'first-animations',
-                  count: count,
-                  boxSize: boxSize,
-                  separatorSize: separatorSize,
-                  direction: direction == Axis.horizontal
-                      ? Axis.vertical
-                      : Axis.horizontal,
-                  animation: scope.controllerForAnimations.animation,
-                  curve: scope.curve,
-                  flipped: scope.flipped,
-                  onTap: (heroTag, index) => scope.selectAnimation(
-                    firstAnimations,
-                    heroTag,
-                    index,
-                  ),
-                ),
-                separator,
-                SizedBox(
-                  width: curveWidth,
-                  height: curveHeight,
-                  child: const _Curve(),
-                ),
-                separator,
-                AnimationsBand(
-                  animations: secondAnimations,
-                  heroTag: 'second-animations',
-                  count: count,
-                  boxSize: boxSize,
-                  separatorSize: separatorSize,
-                  direction: direction == Axis.horizontal
-                      ? Axis.vertical
-                      : Axis.horizontal,
-                  animation: scope.controllerForAnimations.animation,
-                  curve: scope.curve,
-                  flipped: scope.flipped,
-                  onTap: (heroTag, index) => scope.selectAnimation(
-                    secondAnimations,
-                    heroTag,
-                    index,
-                  ),
-                ),
-              ].reversed.toList(),
+              children: content,
             );
           },
         ),
@@ -268,7 +271,7 @@ class _Curve extends ScopeWidget<HomePageController> {
 
   @override
   Widget build(BuildContext context, HomePageController scope) => CurveBox(
-        animation: scope.controllerForAnimations.animation,
+        animation: scope.motionController.animation,
         curve: scope.curve,
         flipped: scope.flipped,
         horisontalMultiplier: Const.curveHorisontalMultiplier,
@@ -277,13 +280,13 @@ class _Curve extends ScopeWidget<HomePageController> {
 }
 
 class _SimpleCurve extends StatelessWidget {
-  final Curve curve;
-  final Color curveColor;
-
   const _SimpleCurve({
     required this.curve,
     required this.curveColor,
   });
+
+  final Curve curve;
+  final Color curveColor;
 
   @override
   Widget build(BuildContext context) {
@@ -350,17 +353,17 @@ class _Duration extends ScopeWidget<HomePageController> {
   @override
   Widget build(BuildContext context, HomePageController scope) =>
       AnimatedBuilder(
-        animation: scope.controllerForAnimations,
+        animation: scope.motionController,
         builder: (context, child) => Padding(
           padding: const EdgeInsets.only(
             top: Const.defaultPadding,
           ),
           child: DurationSelect(
             label: const Text('Duration:'),
-            value: scope.controllerForAnimations.animationDuration,
+            value: scope.motionController.animationDuration,
             durations: _durations,
             onChanged: (value) {
-              scope.controllerForAnimations.animationDuration = value;
+              scope.motionController.animationDuration = value;
             },
           ),
         ),
@@ -373,17 +376,17 @@ class _Pause extends ScopeWidget<HomePageController> {
   @override
   Widget build(BuildContext context, HomePageController scope) =>
       AnimatedBuilder(
-        animation: scope.controllerForAnimations,
+        animation: scope.motionController,
         builder: (context, child) => Padding(
           padding: const EdgeInsets.only(
             top: Const.defaultPadding,
           ),
           child: DurationSelect(
             label: const Text('Pause:'),
-            value: scope.controllerForAnimations.pauseDuration,
+            value: scope.motionController.pauseDuration,
             durations: _pauses,
             onChanged: (value) {
-              scope.controllerForAnimations.pauseDuration = value;
+              scope.motionController.pauseDuration = value;
             },
           ),
         ),
@@ -434,7 +437,7 @@ class _Elastic extends ScopeWidget<HomePageController> {
           Expanded(
             child: _Slider(
               label: 'Elastic:',
-              enabled: MyCurves.isElastic(scope.curve),
+              enabled: isElasticCurve(scope.curve),
               min: 0,
               max: 2,
               divisions: 3,
@@ -466,7 +469,7 @@ class _Elastic extends ScopeWidget<HomePageController> {
           ),
           Expanded(
             child: _CurveSlider(
-              enabled: MyCurves.isElastic(scope.curve),
+              enabled: isElasticCurve(scope.curve),
               min: 0.1,
               max: 2,
               value: scope.elasticPeriod,
@@ -485,19 +488,19 @@ class _CurvesSelector extends ScopeWidget<HomePageController> {
     final theme = Theme.of(context);
 
     return DropdownButton<String>(
-      value: MyCurves.findByCurve(scope.curve),
+      value: findNameByCurve(scope.curve),
       isExpanded: true,
       menuMaxHeight: 400,
       onChanged: (value) {
         if (value != null) {
-          final curve = MyCurves.findByName(value);
+          final curve = findCurveByName(value);
           if (curve != null) {
             scope.curve = curve;
           }
         }
       },
       items: [
-        for (final name in MyCurves.allCurves)
+        for (final name in curvesTemplates)
           DropdownMenuItem<String>(
             value: name,
             child: Padding(
@@ -508,7 +511,7 @@ class _CurvesSelector extends ScopeWidget<HomePageController> {
                     child: Text(name),
                   ),
                   _SimpleCurve(
-                    curve: MyCurves.findByName(name)!,
+                    curve: findCurveByName(name)!,
                     curveColor: theme.colorScheme.secondary,
                   ),
                 ],
@@ -521,15 +524,6 @@ class _CurvesSelector extends ScopeWidget<HomePageController> {
 }
 
 class _Slider extends StatelessWidget {
-  final String? label;
-  final bool enabled;
-  final double value;
-  final double min;
-  final double max;
-  final int? divisions;
-  final void Function(double value) onChanged;
-  final Widget Function(double value)? valueBuilder;
-
   const _Slider({
     this.label,
     required this.enabled,
@@ -540,6 +534,15 @@ class _Slider extends StatelessWidget {
     required this.onChanged,
     this.valueBuilder,
   });
+
+  final String? label;
+  final bool enabled;
+  final double value;
+  final double min;
+  final double max;
+  final int? divisions;
+  final void Function(double value) onChanged;
+  final Widget Function(double value)? valueBuilder;
 
   @override
   Widget build(BuildContext context) => Opacity(

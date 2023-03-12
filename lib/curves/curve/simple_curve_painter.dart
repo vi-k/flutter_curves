@@ -3,13 +3,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class SimpleCurvePainter extends CustomPainter {
-  final double mx;
-  final double my;
-  final Curve curve;
-  final Paint _curvePaint;
-  final Paint _axisPaint;
-  final Paint _gridPaint;
-
   SimpleCurvePainter({
     required this.curve,
     required this.mx,
@@ -26,6 +19,13 @@ class SimpleCurvePainter extends CustomPainter {
         _gridPaint = Paint()
           ..style = PaintingStyle.stroke
           ..color = gridColor;
+
+  final double mx;
+  final double my;
+  final Curve curve;
+  final Paint _curvePaint;
+  final Paint _axisPaint;
+  final Paint _gridPaint;
 
   @override
   void paint(Canvas canvas, Size size) {

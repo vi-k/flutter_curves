@@ -3,13 +3,14 @@ import 'package:flutter/material.dart';
 import '../curve/simple_curve_painter.dart';
 
 class SimpleCurveBox extends StatelessWidget {
-  final Curve curve;
-  final Color curveColor;
-
   const SimpleCurveBox({
+    super.key,
     required this.curve,
     required this.curveColor,
   });
+
+  final Curve curve;
+  final Color curveColor;
 
   @override
   Widget build(BuildContext context) {

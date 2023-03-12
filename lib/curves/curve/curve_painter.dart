@@ -3,25 +3,11 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 class CurvePainter extends CustomPainter {
-  final double horisontalMultiplier;
-  final double verticalMultiplier;
-  final Animation<double> animation;
-  final Curve curve;
-  final Curve _reversed;
-  final Paint _curvePaint;
-  final Paint _valuePaint;
-  final Paint _axisPaint;
-  final Paint _gridPrimaryPaint;
-  final Paint _gridSecondaryPaint;
-  final Paint _cubicMarkerPaint;
-  final Paint _cubicLinePaint;
-
   CurvePainter({
     required this.animation,
     required this.curve,
     required this.horisontalMultiplier,
     required this.verticalMultiplier,
-    bool flipped = false,
     required Color curveColor,
     required Color axisColor,
     required Color gridPrimaryColor,
@@ -29,6 +15,7 @@ class CurvePainter extends CustomPainter {
     required Color guideMarkerColor,
     required Color guideLineColor,
     required Color valueColor,
+    bool flipped = false,
   })  : _reversed = flipped ? curve.flipped : curve,
         _curvePaint = Paint()
           ..style = PaintingStyle.stroke
@@ -52,6 +39,19 @@ class CurvePainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..color = guideLineColor,
         super(repaint: animation);
+
+  final double horisontalMultiplier;
+  final double verticalMultiplier;
+  final Animation<double> animation;
+  final Curve curve;
+  final Curve _reversed;
+  final Paint _curvePaint;
+  final Paint _valuePaint;
+  final Paint _axisPaint;
+  final Paint _gridPrimaryPaint;
+  final Paint _gridSecondaryPaint;
+  final Paint _cubicMarkerPaint;
+  final Paint _cubicLinePaint;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -102,11 +102,17 @@ class CurvePainter extends CustomPainter {
       ..drawLine(startX, endX, _axisPaint)
       ..drawLine(endX - const Offset(arrowLength, arrowWidth), endX, _axisPaint)
       ..drawLine(
-          endX - const Offset(arrowLength, -arrowWidth), endX, _axisPaint)
+        endX - const Offset(arrowLength, -arrowWidth),
+        endX,
+        _axisPaint,
+      )
       ..drawLine(startY, endY, _axisPaint)
       ..drawLine(endY - const Offset(arrowWidth, arrowLength), endY, _axisPaint)
       ..drawLine(
-          endY - const Offset(-arrowWidth, arrowLength), endY, _axisPaint);
+        endY - const Offset(-arrowWidth, arrowLength),
+        endY,
+        _axisPaint,
+      );
 
     // curve
     final curve = this.curve;
@@ -125,7 +131,10 @@ class CurvePainter extends CustomPainter {
       canvas
         ..drawLine(Offset.zero, Offset(curve.a, curve.b), _cubicLinePaint)
         ..drawLine(
-            const Offset(1, 1), Offset(curve.c, curve.d), _cubicLinePaint)
+          const Offset(1, 1),
+          Offset(curve.c, curve.d),
+          _cubicLinePaint,
+        )
         ..drawCircle(Offset.zero, 3 * px, _cubicMarkerPaint)
         ..drawCircle(Offset(curve.a, curve.b), 3 * px, _cubicMarkerPaint)
         ..drawCircle(Offset(curve.c, curve.d), 3 * px, _cubicMarkerPaint)

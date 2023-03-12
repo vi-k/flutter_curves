@@ -11,9 +11,11 @@ class Const {
   // vertical multiplier of the main curve
   static const double curveVerticalMultiplier = 1.6;
 
-  // separator factor relative to the animation box's size
+  // separator factor relative to the motion's size
   static const double separatorFactor = 0.1;
 
-  // border radius factor relative to the animation box's size
+  // border radius factor relative to the motion's size
   static const double borderRadiusFactor = 0.1;
+
+  static const double maxBoxSize = 80;
 }

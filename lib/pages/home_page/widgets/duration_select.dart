@@ -1,21 +1,22 @@
 import 'package:auto_scroll_band/auto_scroll_band.dart';
+import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
 
 import '../../../constants.dart';
 
 class DurationSelect extends StatelessWidget {
-  final Widget? label;
-  final List<Duration> durations;
-  final Duration value;
-  final void Function(Duration value)? onChanged;
-
-  DurationSelect({
+  const DurationSelect({
     super.key,
     this.label,
     required this.value,
-    required Iterable<Duration> durations,
+    required this.durations,
     this.onChanged,
-  }) : durations = List.unmodifiable(durations);
+  });
+
+  final Widget? label;
+  final IList<Duration> durations;
+  final Duration value;
+  final void Function(Duration value)? onChanged;
 
   static String _toString(Duration duration) {
     final s = duration.inSeconds;
@@ -38,7 +39,7 @@ class DurationSelect extends StatelessWidget {
               right: Const.defaultPadding,
               bottom: Const.defaultPadding,
             ),
-            child: label!,
+            child: label,
           ),
         AutoScrollBand(
           padding: const EdgeInsets.symmetric(
@@ -77,7 +78,7 @@ class DurationSelect extends StatelessWidget {
   //       runSpacing: Const.defaultPadding,
   //       alignment: WrapAlignment.start,
   //       crossAxisAlignment: WrapCrossAlignment.center,
-  //       children: [
+  //       children: IListConst([[
   //         if (label != null) label!,
   //         for (final duration in durations)
   //           ChoiceChip(
