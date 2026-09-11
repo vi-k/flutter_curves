@@ -63,8 +63,8 @@ null-safe полом. После правки здесь `flutter pub get`, `flu
 
 ```sh
 flutter analyze                              # No issues found!
-flutter test                                 # 13 тестов, все зелёные
-dart format --set-exit-if-changed lib test   # 38 файлов, 0 changed
+flutter test                                 # 41 тест, все зелёные
+dart format --set-exit-if-changed lib test   # 47 файлов, 0 changed
 ```
 
 Тесты: `test/curve_description_test.dart` — форматирование кривой,
@@ -72,6 +72,22 @@ dart format --set-exit-if-changed lib test   # 38 файлов, 0 changed
 переключение темы через скоуп `App`, открытие диалога выбора моушена,
 перестроение показаний кривой от слайдера `Cubic`. Последний проверен на
 нагруженность: со снятым `notifyDependents()` в сеттере `curve` он падает.
+
+Механика моушенов покрыта с 2026-09-12: `motion_transformers_test.dart`,
+`motion_objects_test.dart`, `motion_state_test.dart`,
+`color_type_test.dart`, `rect_ext_test.dart` и общий
+`motion_test_helpers.dart`. Трансформеры, двигающие канву, проверяются
+**по пикселям** — `renderCanvas` рисует в `ui.Image`, `readPixel` читает
+точку. Утверждения о числах тут не годятся: перепутанная ось или
+незакрытый `save` видны только на картинке.
+
+Набор проверен мутациями, а не только прогоном. Пять правок `lib/`,
+которых не было в задании автора, роняют его: развёрнутая интерполяция
+`begin`↔`end`, `save()` с начальным радиусом вместо текущего,
+`RectExt.full` шире на единицу, `box`, отдающий `alternateColor`, и
+невызванный `finalize` трансформера. Первый прогон одну из них не ловил;
+тест `save carries the current values, not the initial ones` дописан
+именно под неё.
 
 `test/dialog_for_page_route_test.dart` — рамка диалога: приезд по центру
 без лишнего кадра, нажатия над диалогом и под ним, остановка раскладки у
@@ -205,6 +221,19 @@ GitHub отдаёт последний деплой, откуда бы он ни
   (`lib/motions/motion/objects/rect_ext.dart:5`) не используется;
   конструктор `DraftColor.byColorType`
   (`lib/motions/motion/color_type.dart:22`) не используется.
+Найдено дополнительно 2026-09-12, при делегированном написании тестов;
+тоже оставлено как есть, тестами не закреплено:
+
+- `lib/motions/motion/objects/motion_object.dart:40` — `state.save(rect)`
+  передаёт `rect` **родителя**, а собственный `rect` ребёнка при этом
+  игнорируется: `MotionObject.rect` ребёнка не доезжает до его же
+  состояния.
+- `lib/motions/motion/objects/motion_text.dart:24` — `canvas.scale(1 / k)`
+  не откатывается до конца отрисовки.
+- `lib/motions/motion/transformers/border_radius_transformer.dart` и
+  `matrix_transformer.dart` объявляют поле `axis`, нигде его не
+  используют и не подмешивают `HasAxis`.
+
 - Опечатки в именах, разъехавшиеся по коду: файл `simple_surve_box.dart`
   («surve»), поля `curveHorisontalMultiplier` / `horisontalMultiplier`
   («Horisontal»). Третья, `MotionsDIalogController`, ушла вместе с
@@ -214,18 +243,14 @@ GitHub отдаёт последний деплой, откуда бы он ни
 
 Ни одно из этого не начато; порядок — по убыванию пользы.
 
-1. **Тесты на сам механизм моушенов.** Сейчас проверен подъём экрана, но
-   не то, ради чего приложение написано: дерево `MotionObject`,
-   трансформеры, `MotionState`. Всё это чистые функции над канвой и
-   тестируется без виджетов.
-2. **Разобрать мёртвый код и опечатки** из списка выше — одной волной, а
+1. **Разобрать мёртвый код и опечатки** из списка выше — одной волной, а
    не по дороге.
-3. **Разделить `lib/pages/home_page/home_page.dart`** — 818 строк после
+2. **Разделить `lib/pages/home_page/home_page.dart`** — 818 строк после
    слияния страницы с контроллером. Девять приватных виджетов-контролов
    просятся в `widgets/`.
-4. **Разобраться с macOS-обвязкой.** `flutter run -d macos` не работает,
+3. **Разобраться с macOS-обвязкой.** `flutter run -d macos` не работает,
    а попытка его запустить переписывает файлы проекта Xcode.
-5. **Проверить остальные платформы.** Web проверен вживую, тесты идут на
+4. **Проверить остальные платформы.** Web проверен вживую, тесты идут на
    Flutter-тестовом движке. Android, iOS, Linux и Windows со времён
    Flutter 3.7 никто не собирал, и обвязка у них того же возраста, что у
    macOS.
