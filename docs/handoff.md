@@ -1,6 +1,6 @@
 # Состояние проекта
 
-> Актуально на 2026-09-11. Здесь только текущее состояние: на чём
+> Актуально на 2026-09-12. Здесь только текущее состояние: на чём
 > остановились, что сломано, что проверено. История правок — в
 > `docs/records/`, пожелания владельца — в `docs/backlog.md`, устройство
 > приложения — в `docs/architecture.md`.
@@ -12,140 +12,134 @@
 проигрываются по выбранной кривой. Версия `0.4.0`, на pub.dev не
 публикуется.
 
-**Главное: приложение сейчас не собирается.** Код не трогали с 2023-03-12,
-а локальный тулчейн ушёл вперёд на три года. Пока это не решено, ни одна
-проверка из гейта §6 `AGENTS.md` не запускается.
+**Проект собирается, проверки зелёные.** 2026-09-12 он был переведён с
+исчезнувшего пакета `flutter_scope` на его наследника `scopo` и поднят с
+Dart 2.19 на Dart 3.13 — коммиты `23c1e20` и `29972e4`. До этого код не
+трогали с 2023-03-12 и он не разрешал зависимости вовсе.
 
 ## Где остановились
 
-Последний коммит — `b353be7 add motions` от 2023-03-12, всего в истории семь
-коммитов. Работа над кодом не идёт: открытая задача — вернуть проект в
-рабочее состояние, см. «Что мешает» ниже.
+Миграция закончена и смержена в `main`. Разбор — в
+`docs/records/2026-09-12[1]-scopo-migration-report.md`.
 
-В этой сессии заведена документация для восстановления контекста после
-обрыва сессии: `AGENTS.md`, `CLAUDE.md`, `docs/handoff.md`,
-`docs/backlog.md`, `docs/architecture.md`, `docs/conventions.md`,
-`docs/records/`, русский перевод `README.ru.md`. Смержено в `main`
-коммитом `255c898`, код при этом не менялся. Подробности —
-`docs/records/2026-09-11[1]-docs-bootstrap-report.md`.
+Открытых работ нет. Что стоит сделать дальше — в конце этого файла и в
+`docs/backlog.md`.
 
-## Что мешает — три расхождения с тулчейном
+## Тулчейн
 
-1. **Нет пакета `flutter_scope`.** `pubspec.yaml` требует его по пути
-   `../flutter_scope`, каталога не существует. Похоже, пакет переродился в
-   соседний `../scopo` (версия `0.14.0`), но API у него уже другой:
-   `ScopeRoot`, `ScopeWidget`, `ScopeBuilder`, `ScopeChildController`,
-   `ScopeControllerSingleTickerProviderMixin` там в прежнем виде не
-   встречаются, есть `Scope`, `ScopeController`, `ScopeModel`,
-   `ScopeNotifier`, `LiteScope`, `ScopeWidgetBase`. Миграция — не замена
-   строки в `pubspec.yaml`, а переписывание пяти файлов в `lib/` (список —
-   в разделе «Кто зависит от `flutter_scope`»).
-2. **Пол SDK от 2023 года.** В `pubspec.yaml` стоит
-   `sdk: ">=2.19.0 <3.0.0"`, локально — Flutter 3.47.0 с Dart 3.13.0.
-   `fvm` в проекте не заведён, старого SDK под рукой нет. Коммит
-   `45848b7 remove Dart 3.0 :(` показывает, что пол опускали намеренно, но
-   причина в истории не записана.
-3. **`pubspec.lock` рассогласован с `pubspec.yaml`.** В рабочем дереве лок
-   уже без `flutter_scope` и с пакетами эпохи Dart 3 (`collection 1.19.1`,
-   `leak_tracker`), а `pubspec.yaml` всё ещё требует `flutter_scope`. Это
-   **чужая незакоммиченная правка** (см. «Рабочее дерево»), трогать её
-   нельзя.
+- `pubspec.yaml`: `sdk: ^3.13.0`. Локально Flutter 3.47.0 с Dart 3.13.0,
+  `fvm` в проекте не заведён — тулчейн ровно один, глобальный.
+- `scopo: ^0.14.0` берётся **с pub.dev**, а не по пути из соседнего
+  каталога. Локальный `../scopo` есть, и переключить туда — одна строка в
+  `pubspec.yaml`; по умолчанию взята опубликованная версия, потому что
+  ровно исчезнувший локальный путь и остановил этот проект на три года.
+- `auto_scroll_band` остаётся локальным: `path: ../auto_scroll_band`, на
+  pub.dev его нет.
+
+**У `../auto_scroll_band` пол SDK так и остался `>=2.19.0 <3.0.0`.**
+Разрешение зависимостей это сейчас пропускает, но пакет чужой — трогать
+его отсюда нельзя. Владельцу стоит поднять пол и там.
+
+## Проверки
+
+Гейт перед мержем в `main` — три команды, все проходят (прогон
+2026-09-12, Flutter 3.47.0):
+
+```sh
+flutter analyze                              # No issues found!
+flutter test                                 # 4 теста, все зелёные
+dart format --set-exit-if-changed lib test   # 38 файлов, 0 changed
+```
+
+Тесты в `test/widget_test.dart`: подъём главного экрана с его контролами,
+переключение темы через скоуп `App`, открытие диалога выбора моушена,
+перестроение показаний кривой от слайдера `Cubic`. Последний проверен на
+нагруженность: со снятым `notifyDependents()` в сеттере `curve` он падает.
+
+`flutter build web` тоже проходит. **`flutter run -d macos` не проверен:**
+сборка падает на рассинхроне CocoaPods, и Flutter при этом переписывает
+файлы платформы. Приведение macOS-обвязки в порядок — отдельная работа.
+
+**Сцены со скоупом надо давать устояться.** Скоуп подписывает потомков
+целиком, пока не построена его готовая ветка, и виджет, собранный на этом
+переходе, перестраивается от любого уведомления — `select` там ещё ничего
+не значит. Первый вариант третьего теста из-за этого проходил и со снятым
+`notifyDependents()`. Помощник `_pumpApp` в тесте качает два лишних кадра
+после появления экрана именно поэтому.
+
+Приложение отдельно поднято в браузере и проверено руками: график
+рисуется, моушены идут, ленты длительности и паузы прокручиваются к
+выбранному чипу, слайдеры двигают кривую, тема переключается, диалог
+выбора моушена открывается с перелётом плитки.
 
 ## Рабочее дерево — чужие правки
 
-В дереве лежат незакоммиченные изменения владельца. **Они не мои, коммитить
-их вместе со своими нельзя:**
+В дереве остаётся незакоммиченная правка владельца:
 
 - `analysis_options.yaml` — секция `exclude` переписана со словаря на
-  список, из исключений убраны `lib/**.g.dart`, `lib/**.freezed.dart`,
-  `assets/**` и добавлены платформенные каталоги;
-- `pubspec.yaml` — одинарные кавычки заменены на двойные (косметика);
-- `pubspec.lock` — перерешён без `flutter_scope`, пакеты подняты до версий
-  эпохи Dart 3.
+  список. **Не тронута и не закоммичена.**
 
-## Что проверено и чем
+Две другие правки владельца пережить миграцию не могли:
 
-Прогоны 2026-09-11 на локальном Flutter 3.47.0 / Dart 3.13.0:
+- `pubspec.yaml` — его замена одинарных кавычек на двойные **сохранена**:
+  файл правился и дальше, стиль кавычек соблюдён;
+- `pubspec.lock` — был перерешён заново (`flutter pub upgrade`) и
+  закоммичен вместе с миграцией: лок обязан отвечать `pubspec.yaml`, а тот
+  сменил и пол SDK, и состав зависимостей. Прежняя версия лежит в
+  `/private/tmp/.../scratchpad/pubspec.lock.owner-backup` до конца сессии.
 
-- `dart pub get --dry-run` — **падает**:
-  `Because flutter_curves depends on flutter_scope from path which doesn't
-  exist (could not find package flutter_scope at "../flutter_scope"),
-  version solving failed.`
-- `dart analyze lib test` — **127 замечаний: 78 ошибок, 19 предупреждений,
-  30 info**. Все ошибки вторичны: `uri_does_not_exist` на
-  `package:flutter_scope/flutter_scope.dart` и всё, что из этого следует
-  (`extends_non_class`, `mixin_of_non_class`, `undefined_identifier` на
-  `Scope`). Отдельных дефектов среди них нет.
-- `flutter analyze` и `flutter test` **не запускались**: они сначала делают
-  `pub get`, который падает.
-
-Уровень info — устаревшие API, накопившиеся за три года: `onBackground` →
-`onSurface`, `withOpacity` → `withValues`, `Matrix4.translate`/`scale` →
-`translateByVector3`/`scaleByDouble`. Их чинить имеет смысл только после
-того, как проект снова начнёт разрешаться.
-
-## Тестов нет
-
-`test/widget_test.dart` — нетронутый шаблон `flutter create` про счётчик:
-ищет текст `'0'` и иконку `Icons.add`, которых в этом приложении нет. Он не
-относится к проекту и упадёт, как только сборка оживёт. Первый настоящий
-тест заводится с нуля.
-
-## Кто зависит от `flutter_scope`
-
-Пять файлов, всё — слой страниц:
-
-- `lib/app.dart` — `Scope`, `Scope.watch<AppState>`;
-- `lib/pages/home_page/home_page.dart` — `ScopeRoot`,
-  `ScopeSingleTickerProviderMixin`, `ScopeWidget` (девять приватных
-  виджетов);
-- `lib/pages/home_page/home_page_controller.dart` — `ScopeController`,
-  `ScopeControllerSingleTickerProviderMixin`;
-- `lib/pages/motions_page/motions_dialog.dart` — `ScopeRoot`,
-  `ScopeBuilder`;
-- `lib/pages/motions_page/motions_dialog_controller.dart` —
-  `ScopeChildController`, `ScopeWidgetProviderMixin`.
-
-Слои `lib/motions/`, `lib/curves/` и `lib/common/` от `flutter_scope` не
-зависят вовсе — при миграции их трогать не придётся.
+Кроме того, в `analysis_options.yaml` пришлось удалить шесть строк: пять
+линтов, которые Dart 3.13 больше не знает (`unsafe_html`,
+`package_api_docs`) или считает устаревшими (`one_member_abstracts`,
+`unnecessary_await_in_return`, `use_if_null_to_convert_nulls_to_bools`).
+Без этого `flutter analyze` даёт пять предупреждений. Это правка в чужом
+файле, но в другой его секции, чем правка владельца.
 
 ## Известные дефекты в коде
 
-Найдены чтением кода 2026-09-11, ни один **не проверен прогоном** — проект
-не собирается. Ни один не исправлен.
+Найдены чтением кода 2026-09-11 и **оставлены как есть**: миграция их не
+касалась, чинить заодно — значит смешать две работы.
 
-- `lib/motions/motion/transformers/motion_transformer.dart:48` —
+- `lib/motions/motion/transformers/motion_transformer.dart:47` —
   `HasAlignment.finalize` вызывает `super.prepare(state)` вместо
   `super.finalize(state)`. Похоже на опечатку копипастой; для одиночного
   миксина последствий нет, но цепочка `finalize` по миксинам разорвана.
-- `lib/motions/motion/objects/motion_object.dart:23` и `:46` —
+- `lib/motions/motion/objects/motion_object.dart:22` и `:44` —
   `MotionObject.prepare` и `MotionObject.finalized` не вызываются нигде.
   `Motion` зовёт сразу `paint`. Похоже на незаконченный рефакторинг:
   `save`/`restore` канвы сейчас делает сам `paint`.
-- Мёртвый код: `SimpleCurveBox`
-  (`lib/curves/widgets/simple_surve_box.dart`) не используется и не
-  экспортируется из `lib/curves/export.dart`, а в
-  `lib/pages/home_page/home_page.dart:282` живёт его приватный дубль
-  `_SimpleCurve`; enum `RectAlignment`
-  (`lib/motions/motion/objects/rect_ext.dart:5`) не используется;
-  конструктор `DraftColor.byColorType`
-  (`lib/motions/motion/color_type.dart:23`) не используется.
-- `lib/motions/motion/objects/motion_object.dart:21` — поле `clip` не
-  обрезает ничего: в `lib/motions/widgets/motion.dart:77` по нему
+- `lib/motions/motion/objects/motion_object.dart:20` — поле `clip` не
+  обрезает ничего: в `lib/motions/widgets/motion.dart:71` по нему
   выбирается, оборачивать ли бокс в `InkWell`. Значение по умолчанию
   `true`, ни один шаблон его не переопределяет, так что ветка
   `!motion.clip` недостижима.
+- Мёртвый код: `SimpleCurveBox`
+  (`lib/curves/widgets/simple_surve_box.dart`) не используется и не
+  экспортируется из `lib/curves/export.dart`, а в
+  `lib/pages/home_page/home_page.dart` живёт его приватный дубль
+  `_SimpleCurve`; enum `RectAlignment`
+  (`lib/motions/motion/objects/rect_ext.dart:5`) не используется;
+  конструктор `DraftColor.byColorType`
+  (`lib/motions/motion/color_type.dart:22`) не используется.
 - Опечатки в именах, разъехавшиеся по коду: файл `simple_surve_box.dart`
-  («surve»), класс `MotionsDIalogController` («DIalog»), поля
-  `curveHorisontalMultiplier` / `horisontalMultiplier` («Horisontal»).
-- `lib/motions/motion_controller/motion_controller.dart:61` — `start()`
-  крутит бесконечный цикл `while (state.mounted)` с `await`; владение
-  циклом держится на `mounted` чужого `State`, переданного как
-  `TickerProvider`. Конструктор это и подпирает ассертом
-  `vsync is State`. Работает, но связь хрупкая.
+  («surve»), поля `curveHorisontalMultiplier` / `horisontalMultiplier`
+  («Horisontal»). Третья, `MotionsDIalogController`, ушла вместе с
+  классом.
 
-## Ближайший шаг
+## Что стоит сделать дальше
 
-Решение по пункту 1 «Что мешает» — за владельцем: мигрировать на `scopo`
-или восстановить `flutter_scope`. Всё остальное (пол SDK, устаревшие API,
-тесты, мёртвый код) упирается в него и до него не двигается.
+Ни одно из этого не начато; порядок — по убыванию пользы.
+
+1. **Поднять пол SDK у `../auto_scroll_band`.** Сейчас он заявляет Dart
+   2.19 и держится только на снисходительности `pub`.
+2. **Тесты на сам механизм моушенов.** Сейчас проверен подъём экрана, но
+   не то, ради чего приложение написано: дерево `MotionObject`,
+   трансформеры, `MotionState`. Всё это чистые функции над канвой и
+   тестируется без виджетов.
+3. **Разобрать мёртвый код и опечатки** из списка выше — одной волной, а
+   не по дороге.
+4. **Разделить `lib/pages/home_page/home_page.dart`** — 818 строк после
+   слияния страницы с контроллером. Девять приватных виджетов-контролов
+   просятся в `widgets/`.
+5. **Разобраться с macOS-обвязкой.** `flutter run -d macos` не работает,
+   а попытка его запустить переписывает файлы проекта Xcode.

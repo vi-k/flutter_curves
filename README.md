@@ -31,15 +31,13 @@ flutter run
 
 ## Requirements
 
-Two dependencies are local path packages resolved from sibling
-directories, so a standalone clone will not resolve until they are in
-place next to this repository:
+The SDK floor in `pubspec.yaml` is Dart 3.13, which means a Flutter
+3.35-era toolchain or newer.
 
-- `../flutter_scope` — scopes and controllers;
-- `../auto_scroll_band` — the chip strip that scrolls to the selected item.
-
-The SDK floor in `pubspec.yaml` is Dart 2.19, which means a Flutter 3.7-era
-toolchain.
+One dependency, `auto_scroll_band`, is a local path package resolved from
+a sibling directory, so a standalone clone will not resolve until it is in
+place next to this repository. State is managed with
+[scopo](https://pub.dev/packages/scopo), which comes from pub.dev.
 
 ## License
 
