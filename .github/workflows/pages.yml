@@ -1,0 +1,79 @@
+name: pages
+
+# Builds the web app and publishes it to GitHub Pages.
+#
+# Settings -> Pages -> Source must be "GitHub Actions". Until it is, the
+# deploy job fails: the site is then still published from the gh-pages
+# branch, and a deployment cannot come from two places at once.
+#
+# The custom domain is a Pages setting, not a file. A deployment made
+# from Actions does not read CNAME out of the artifact the way a
+# branch-published site does, so web/CNAME stops being what carries the
+# domain and only records the intent. The domain is set once, in
+# Settings -> Pages -> Custom domain, or with
+# `gh api -X PUT repos/vi-k/flutter_curves/pages -f cname=yet-another.dev`.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'lib/**'
+      - 'web/**'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - '.github/workflows/pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One deployment at a time; a newer push waits rather than cancelling.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          path: flutter_curves
+
+      # pubspec.yaml takes auto_scroll_band by path from ../, so the
+      # sibling has to sit beside the checkout, not inside it. This is
+      # why the two repositories are checked out into named folders
+      # instead of the workspace root.
+      - uses: actions/checkout@v7
+        with:
+          repository: vi-k/auto_scroll_band
+          path: auto_scroll_band
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.0
+          channel: stable
+          cache: true
+
+      # --base-href / is not decoration: the app is served from the apex
+      # domain, and the default /flutter_curves/ sends every asset one
+      # level deeper than it lies, which is a white page.
+      - name: Build
+        run: flutter build web --wasm --base-href /
+        working-directory: flutter_curves
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: flutter_curves/build/web
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5
