@@ -10,15 +10,15 @@ class SimpleCurvePainter extends CustomPainter {
     required Color curveColor,
     required Color axisColor,
     required Color gridColor,
-  })  : _curvePaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = curveColor,
-        _axisPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = axisColor,
-        _gridPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = gridColor;
+  }) : _curvePaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = curveColor,
+       _axisPaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = axisColor,
+       _gridPaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = gridColor;
 
   final double mx;
   final double my;

@@ -61,25 +61,14 @@ class Motion extends StatelessWidget {
 
     return RepaintBoundary(
       child: Material(
-        borderRadius: BorderRadius.all(
-          Radius.circular(borderRadius),
-        ),
+        borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
         clipBehavior: Clip.antiAliasWithSaveLayer,
         child: DecoratedBox(
           decoration: BoxDecoration(
-            border: Border.all(
-              color: theme.colorScheme.inversePrimary,
-            ),
-            borderRadius: BorderRadius.all(
-              Radius.circular(borderRadius),
-            ),
+            border: Border.all(color: theme.colorScheme.inversePrimary),
+            borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
           ),
-          child: !motion.clip
-              ? box
-              : InkWell(
-                  onTap: onTap,
-                  child: box,
-                ),
+          child: !motion.clip ? box : InkWell(onTap: onTap, child: box),
         ),
       ),
     );

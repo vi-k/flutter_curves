@@ -5,10 +5,7 @@ import '../motion_state.dart';
 import 'motion_object.dart';
 
 class MotionBorder extends MotionObject {
-  const MotionBorder({
-    this.color = const DraftColor.box(),
-    this.width = 2,
-  });
+  const MotionBorder({this.color = const DraftColor.box(), this.width = 2});
 
   final DraftColor color;
   final double width;

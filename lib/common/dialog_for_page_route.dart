@@ -12,15 +12,14 @@ class _Const {
   static const Duration transitionDuration = Duration(milliseconds: 500);
   static const Curve transitionCurve = Curves.fastOutSlowIn;
   static const Duration reverseTransitionDuration = Duration(milliseconds: 300);
-  static const Curve reverseTransitionCurve =
-      FlippedCurve(Curves.fastOutSlowIn);
+  static const Curve reverseTransitionCurve = FlippedCurve(
+    Curves.fastOutSlowIn,
+  );
 }
 
 class DialogForPageRoute<T> extends PageRoute<T> {
-  DialogForPageRoute({
-    required this.builder,
-    this.barrierDismissible = false,
-  }) : super();
+  DialogForPageRoute({required this.builder, this.barrierDismissible = false})
+    : super();
 
   final WidgetBuilder builder;
 
@@ -75,8 +74,7 @@ class DialogForPageRoute<T> extends PageRoute<T> {
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-  ) =>
-      _DialogForPageRouteContainer(builder);
+  ) => _DialogForPageRouteContainer(builder);
 }
 
 class _DialogForPageRouteContainer extends StatefulWidget {
@@ -104,9 +102,7 @@ class _DialogForPageRouteContainerState
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: _Const.minHPadding),
         child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: _Const.maxWidth,
-          ),
+          constraints: const BoxConstraints(maxWidth: _Const.maxWidth),
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
@@ -132,7 +128,8 @@ class _DialogForPageRouteContainerState
               ),
               SliverLayoutBuilder(
                 builder: (context, constraints) {
-                  final bottomOffset = constraints.viewportMainAxisExtent -
+                  final bottomOffset =
+                      constraints.viewportMainAxisExtent -
                       constraints.precedingScrollExtent -
                       minBottom;
 
@@ -143,9 +140,7 @@ class _DialogForPageRouteContainerState
                     });
                   }
 
-                  return const SliverToBoxAdapter(
-                    child: SizedBox.shrink(),
-                  );
+                  return const SliverToBoxAdapter(child: SizedBox.shrink());
                 },
               ),
             ],

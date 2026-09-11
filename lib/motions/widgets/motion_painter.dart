@@ -3,11 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/animation.dart';
 import 'package:flutter/rendering.dart';
 
-typedef Painter = void Function(
-  Canvas canvas,
-  double value,
-  double px,
-);
+typedef Painter = void Function(Canvas canvas, double value, double px);
 
 class MotionPainter extends CustomPainter {
   MotionPainter({
@@ -17,8 +13,8 @@ class MotionPainter extends CustomPainter {
     this.keepRatio = true,
     this.fill = false,
     bool flipped = false,
-  })  : _reversed = flipped ? curve.flipped : curve,
-        super(repaint: animation);
+  }) : _reversed = flipped ? curve.flipped : curve,
+       super(repaint: animation);
 
   final Animation<double> animation;
   final Curve curve;

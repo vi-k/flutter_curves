@@ -3,10 +3,7 @@ import 'package:flutter/material.dart';
 import '../motion_state.dart';
 
 abstract class MotionTransformer<T> {
-  const MotionTransformer({
-    required this.begin,
-    required this.end,
-  });
+  const MotionTransformer({required this.begin, required this.end});
 
   final T begin;
   final T end;
@@ -25,10 +22,7 @@ abstract class MotionTransformer<T> {
 }
 
 abstract class MotionTransformerDouble extends MotionTransformer<double> {
-  const MotionTransformerDouble({
-    required super.begin,
-    required super.end,
-  });
+  const MotionTransformerDouble({required super.begin, required super.end});
 
   @override
   double transformedValue(MotionState state, double value) =>

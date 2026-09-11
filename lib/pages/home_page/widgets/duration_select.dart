@@ -42,9 +42,7 @@ class DurationSelect extends StatelessWidget {
             child: label,
           ),
         AutoScrollBand(
-          padding: const EdgeInsets.symmetric(
-            horizontal: Const.defaultPadding,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: Const.defaultPadding),
           startExtraIndent: Const.defaultPadding * 3,
           endExtraIndent: Const.defaultPadding * 3,
           selected: (index) => durations[index] == value,

@@ -13,11 +13,11 @@ class MotionState {
     required this.textOnBoxColor,
     required this.textOutBoxColor,
     required this.alternateColor,
-  })  : initialRect = rect,
-        initialBorderRadius = borderRadius,
-        initialBoxColor = boxColor,
-        initialTextOnBoxColor = textOnBoxColor,
-        initialTextOutBoxColor = textOutBoxColor;
+  }) : initialRect = rect,
+       initialBorderRadius = borderRadius,
+       initialBoxColor = boxColor,
+       initialTextOnBoxColor = textOnBoxColor,
+       initialTextOutBoxColor = textOutBoxColor;
 
   final Canvas canvas;
   final double px;

@@ -5,9 +5,7 @@ import '../motion_state.dart';
 import 'motion_object.dart';
 
 class MotionFill extends MotionObject {
-  const MotionFill({
-    this.color = const DraftColor.box(),
-  });
+  const MotionFill({this.color = const DraftColor.box()});
 
   final DraftColor color;
 

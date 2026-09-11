@@ -9,9 +9,9 @@ class BorderRadiusTransformer extends MotionTransformer<BorderRadius> {
     BorderRadius? begin,
     BorderRadius? end,
   }) : super(
-          begin: begin ?? BorderRadius.zero,
-          end: end ?? const BorderRadius.all(Radius.circular(1)),
-        );
+         begin: begin ?? BorderRadius.zero,
+         end: end ?? const BorderRadius.all(Radius.circular(1)),
+       );
 
   final Axis? axis;
 

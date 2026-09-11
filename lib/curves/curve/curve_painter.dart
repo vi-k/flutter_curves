@@ -16,29 +16,29 @@ class CurvePainter extends CustomPainter {
     required Color guideLineColor,
     required Color valueColor,
     bool flipped = false,
-  })  : _reversed = flipped ? curve.flipped : curve,
-        _curvePaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = curveColor,
-        _valuePaint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = valueColor,
-        _axisPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = axisColor,
-        _gridPrimaryPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = gridPrimaryColor,
-        _gridSecondaryPaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = gridSecondaryColor,
-        _cubicMarkerPaint = Paint()
-          ..style = PaintingStyle.fill
-          ..color = guideMarkerColor,
-        _cubicLinePaint = Paint()
-          ..style = PaintingStyle.stroke
-          ..color = guideLineColor,
-        super(repaint: animation);
+  }) : _reversed = flipped ? curve.flipped : curve,
+       _curvePaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = curveColor,
+       _valuePaint = Paint()
+         ..style = PaintingStyle.fill
+         ..color = valueColor,
+       _axisPaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = axisColor,
+       _gridPrimaryPaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = gridPrimaryColor,
+       _gridSecondaryPaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = gridSecondaryColor,
+       _cubicMarkerPaint = Paint()
+         ..style = PaintingStyle.fill
+         ..color = guideMarkerColor,
+       _cubicLinePaint = Paint()
+         ..style = PaintingStyle.stroke
+         ..color = guideLineColor,
+       super(repaint: animation);
 
   final double horisontalMultiplier;
   final double verticalMultiplier;

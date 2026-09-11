@@ -6,15 +6,9 @@ import '../motion_state.dart';
 import 'motion_transformer.dart';
 
 class RotateTransformer extends MotionTransformerDouble with HasAlignment {
-  const RotateTransformer({
-    Alignment? alignment,
-    double? begin,
-    double? end,
-  })  : alignment = alignment ?? Alignment.center,
-        super(
-          begin: begin ?? 0,
-          end: end ?? math.pi / 2,
-        );
+  const RotateTransformer({Alignment? alignment, double? begin, double? end})
+    : alignment = alignment ?? Alignment.center,
+      super(begin: begin ?? 0, end: end ?? math.pi / 2);
 
   @override
   final Alignment alignment;

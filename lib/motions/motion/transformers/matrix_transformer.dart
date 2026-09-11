@@ -12,11 +12,8 @@ class MatrixTransformer extends MotionTransformerDouble with HasAlignment {
     this.axis,
     double? begin,
     double? end,
-  })  : alignment = alignment ?? Alignment.center,
-        super(
-          begin: begin ?? 0,
-          end: end ?? 1,
-        );
+  }) : alignment = alignment ?? Alignment.center,
+       super(begin: begin ?? 0, end: end ?? 1);
 
   final Float64List Function(double value) matrix;
   @override

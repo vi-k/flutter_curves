@@ -12,8 +12,8 @@ abstract class MotionObject {
     IList<MotionTransformer<Object>>? transformers,
     IList<MotionObject>? children,
     this.clip = true,
-  })  : transformers = transformers ?? const IListConst([]),
-        children = children ?? const IListConst([]);
+  }) : transformers = transformers ?? const IListConst([]),
+       children = children ?? const IListConst([]);
 
   final Rect? rect;
   final IList<MotionTransformer<Object>> transformers;

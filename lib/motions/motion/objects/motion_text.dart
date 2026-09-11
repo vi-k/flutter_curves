@@ -23,24 +23,25 @@ class MotionText extends MotionObject {
     const k = 1000.0;
     state.canvas.scale(1 / k);
 
-    final p = ParagraphBuilder(
-      ParagraphStyle(
-        textAlign: TextAlign.center,
-        fontSize: fontSize * k,
-        textHeightBehavior: const TextHeightBehavior(
-          applyHeightToFirstAscent: false,
-          applyHeightToLastDescent: false,
-        ),
-      ),
-    )
-      ..pushStyle(
-        TextStyle(
-          color: color.colorFrom(state),
-          fontFamily: fontFamily,
-          height: 1.15,
-        ),
-      )
-      ..addText(text);
+    final p =
+        ParagraphBuilder(
+            ParagraphStyle(
+              textAlign: TextAlign.center,
+              fontSize: fontSize * k,
+              textHeightBehavior: const TextHeightBehavior(
+                applyHeightToFirstAscent: false,
+                applyHeightToLastDescent: false,
+              ),
+            ),
+          )
+          ..pushStyle(
+            TextStyle(
+              color: color.colorFrom(state),
+              fontFamily: fontFamily,
+              height: 1.15,
+            ),
+          )
+          ..addText(text);
 
     final paragraph = p.build()
       ..layout(ParagraphConstraints(width: state.rrect.width * k));

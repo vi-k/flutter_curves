@@ -10,9 +10,9 @@ class ColorTransformer extends MotionTransformer<DraftColor> {
     DraftColor? begin,
     DraftColor? end,
   }) : super(
-          begin: begin ?? const DraftColor.box(),
-          end: end ?? const DraftColor.alternate(),
-        );
+         begin: begin ?? const DraftColor.box(),
+         end: end ?? const DraftColor.alternate(),
+       );
 
   final ObjectColor color;
 
