@@ -37,40 +37,37 @@ class MotionsBand extends StatelessWidget {
     final separator = SizedBox.square(dimension: separatorSize);
     final emptyBox = SizedBox.square(dimension: boxSize);
 
-    final widgets = List<Widget>.generate(
-      count * 2 - 1,
-      (index) {
-        if (index.isOdd) return separator;
+    final widgets = List<Widget>.generate(count * 2 - 1, (index) {
+      if (index.isOdd) return separator;
 
-        final itemIndex = index ~/ 2;
-        if (motions.length <= itemIndex) return emptyBox;
+      final itemIndex = index ~/ 2;
+      if (motions.length <= itemIndex) return emptyBox;
 
-        final motion = motions[itemIndex];
-        final itemHeroTag = '$heroTag#$itemIndex';
+      final motion = motions[itemIndex];
+      final itemHeroTag = '$heroTag#$itemIndex';
 
-        return Hero(
-          createRectTween: (begin, end) => RectTween(begin: begin, end: end),
-          tag: itemHeroTag,
-          child: SizedBox.square(
-            dimension: boxSize,
-            child: Motion(
-              motion: motion,
-              animation: animation,
-              borderRadius: boxSize * Const.borderRadiusFactor,
-              curve: curve,
-              flipped: flipped,
-              boxColor: theme.colorScheme.primary,
-              alternateColor: theme.colorScheme.secondary,
-              textOnBoxColor: theme.colorScheme.onPrimary,
-              textOutBoxColor: theme.colorScheme.onBackground,
-              onTap: onTap == null
-                  ? null
-                  : () => onTap?.call(itemHeroTag, itemIndex),
-            ),
+      return Hero(
+        createRectTween: (begin, end) => RectTween(begin: begin, end: end),
+        tag: itemHeroTag,
+        child: SizedBox.square(
+          dimension: boxSize,
+          child: Motion(
+            motion: motion,
+            animation: animation,
+            borderRadius: boxSize * Const.borderRadiusFactor,
+            curve: curve,
+            flipped: flipped,
+            boxColor: theme.colorScheme.primary,
+            alternateColor: theme.colorScheme.secondary,
+            textOnBoxColor: theme.colorScheme.onPrimary,
+            textOutBoxColor: theme.colorScheme.onSurface,
+            onTap: onTap == null
+                ? null
+                : () => onTap?.call(itemHeroTag, itemIndex),
           ),
-        );
-      },
-    );
+        ),
+      );
+    });
 
     return Flex(
       direction: direction,

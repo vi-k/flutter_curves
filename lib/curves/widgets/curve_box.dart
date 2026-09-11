@@ -34,9 +34,13 @@ class CurveBox extends StatelessWidget {
             verticalMultiplier: verticalMultiplier,
             curveColor: theme.colorScheme.secondary,
             valueColor: theme.colorScheme.secondary,
-            axisColor: theme.colorScheme.onBackground.withOpacity(0.7),
-            gridPrimaryColor: theme.colorScheme.onBackground.withOpacity(0.2),
-            gridSecondaryColor: theme.colorScheme.onBackground.withOpacity(0.1),
+            axisColor: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+            gridPrimaryColor: theme.colorScheme.onSurface.withValues(
+              alpha: 0.2,
+            ),
+            gridSecondaryColor: theme.colorScheme.onSurface.withValues(
+              alpha: 0.1,
+            ),
             guideMarkerColor: theme.colorScheme.tertiary,
             guideLineColor: theme.colorScheme.tertiary,
           ),

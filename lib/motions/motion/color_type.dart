@@ -2,35 +2,27 @@ import 'dart:ui';
 
 import 'motion_state.dart';
 
-enum DraftColorType {
-  box,
-  alternate,
-  textOnBox,
-  textOutBox,
-  finished,
-}
+enum DraftColorType { box, alternate, textOnBox, textOutBox, finished }
 
 class DraftColor {
   const DraftColor(this.light, [Color? dark])
-      : type = DraftColorType.finished,
-        dark = dark ?? light,
-        opacity = 1;
+    : type = DraftColorType.finished,
+      dark = dark ?? light,
+      opacity = 1;
 
-  const DraftColor._(this.type, this.opacity)
-      : light = null,
-        dark = null;
+  const DraftColor._(this.type, this.opacity) : light = null, dark = null;
 
   DraftColor.byColorType(ObjectColor colorType, double draftOpacity)
-      : this._(colorType._draftType, draftOpacity);
+    : this._(colorType._draftType, draftOpacity);
 
   const DraftColor.box([double opacity = 1])
-      : this._(DraftColorType.box, opacity);
+    : this._(DraftColorType.box, opacity);
   const DraftColor.alternate([double opacity = 1])
-      : this._(DraftColorType.alternate, opacity);
+    : this._(DraftColorType.alternate, opacity);
   const DraftColor.textOnBox([double opacity = 1])
-      : this._(DraftColorType.textOnBox, opacity);
+    : this._(DraftColorType.textOnBox, opacity);
   const DraftColor.textOutBox([double opacity = 1])
-      : this._(DraftColorType.textOutBox, opacity);
+    : this._(DraftColorType.textOutBox, opacity);
 
   final DraftColorType type;
   final double opacity;
@@ -43,22 +35,17 @@ class DraftColor {
     switch (type) {
       case DraftColorType.box:
         color = state.boxColor;
-        break;
       case DraftColorType.alternate:
         color = state.alternateColor;
-        break;
       case DraftColorType.textOnBox:
         color = state.textOnBoxColor;
-        break;
       case DraftColorType.textOutBox:
         color = state.textOutBoxColor;
-        break;
       case DraftColorType.finished:
         color = state.brightness == Brightness.light ? light! : dark!;
-        break;
     }
 
-    return color.withOpacity(color.opacity * opacity);
+    return color.withValues(alpha: color.a * opacity);
   }
 }
 
@@ -97,13 +84,10 @@ enum ObjectColor {
     switch (this) {
       case ObjectColor.box:
         state.boxColor = color;
-        break;
       case ObjectColor.textOnBox:
         state.textOnBoxColor = color;
-        break;
       case ObjectColor.textOutBox:
         state.textOutBoxColor = color;
-        break;
     }
   }
 }

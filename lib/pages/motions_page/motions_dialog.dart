@@ -1,47 +1,77 @@
 import 'package:fast_immutable_collections/fast_immutable_collections.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_scope/flutter_scope.dart';
+import 'package:scopo/scopo.dart';
 
 import '../../constants.dart';
 import '../../motions/export.dart';
-import '../home_page/home_page_controller.dart';
-import 'motions_dialog_controller.dart';
+import '../home_page/home_page.dart';
 
 const double _boxSize = 60;
 const double _selectionPadding = 3;
 const double _selectionWidth = 2;
 
-class MotionsDialog extends ScopeRoot<MotionsDIalogController>
-    with ScopeSingleTickerProviderMixin {
+/// The scope of the motion picker.
+///
+/// [parent] arrives as a parameter rather than through the tree: the picker is
+/// a route of its own, so the home scope is not above it.
+final class MotionsDialog extends LiteScope<MotionsDialog, MotionsDialogState> {
   const MotionsDialog({
     super.key,
     required this.parent,
-    this.animation,
+    required this.animation,
     this.selectedMotion,
     this.selectedHeroTag,
   }) : assert(
-          selectedMotion == null && selectedHeroTag == null ||
-              selectedMotion != null && selectedHeroTag != null,
-          'Both selected and selectedHeroTag must be set',
-        );
+         selectedMotion == null && selectedHeroTag == null ||
+             selectedMotion != null && selectedHeroTag != null,
+         'Both selected and selectedHeroTag must be set',
+       );
 
-  final HomePageController parent;
-  final Animation<double>? animation;
+  final HomeScopeState parent;
+  final Animation<double> animation;
   final MotionObject? selectedMotion;
   final String? selectedHeroTag;
 
-  @override
-  MotionsDIalogController createScope() => MotionsDIalogController(parent);
+  /// The type arguments of this scope, named once.
+  static const access = LiteScopeAccess<MotionsDialog, MotionsDialogState>();
 
   @override
-  Widget build(BuildContext context, MotionsDIalogController scope) {
-    scope.alreadyOnList.clear();
+  Widget? buildOnWaiting(BuildContext context) => const SizedBox.shrink();
+
+  @override
+  MotionsDialogState createState() => MotionsDialogState();
+}
+
+/// The state of the motion picker.
+final class MotionsDialogState
+    extends LiteScopeState<MotionsDialog, MotionsDialogState> {
+  /// Templates that have already been given the hero tag in this build.
+  ///
+  /// The same template may appear in several rows, and only the first of them
+  /// may fly: two heroes with one tag is an error. Cleared by [build], filled
+  /// by the rows it builds.
+  final Set<MotionObject> alreadyOnList = {};
+
+  late MotionObject? _selectedMotion = params.selectedMotion;
+
+  MotionObject? get selectedMotion => _selectedMotion;
+
+  void select(MotionObject value) {
+    setState(() {
+      _selectedMotion = value;
+    });
+    notifyDependents();
+
+    if (mounted) Navigator.pop(context, value);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    alreadyOnList.clear();
 
     return Column(
       children: [
-        AppBar(
-          title: const Text('Select a motion'),
-        ),
+        const _Title(),
         _ClassRow<TranslateTransformer>('Translate', motionsTemplates),
         const SizedBox(height: Const.defaultPadding),
         _ClassRow<ScaleTransformer>('Scale', motionsTemplates),
@@ -63,6 +93,14 @@ class MotionsDialog extends ScopeRoot<MotionsDIalogController>
   }
 }
 
+class _Title extends StatelessWidget {
+  const _Title();
+
+  @override
+  Widget build(BuildContext context) =>
+      AppBar(title: const Text('Select a motion'));
+}
+
 class _ClassRow<T extends MotionTransformer<Object?>> extends StatefulWidget {
   const _ClassRow(this.name, this.templates);
 
@@ -82,47 +120,50 @@ class _ClassRowState<T extends MotionTransformer<Object?>>
     super.initState();
 
     _filteredTemplates = widget.templates
-        .where(
-          (e) => e.transformers.any((transformer) => transformer is T),
-        )
+        .where((e) => e.transformers.any((transformer) => transformer is T))
         .toIList()
-        .sort(
-      (a, b) {
-        final al = a.transformers.length;
-        final bl = b.transformers.length;
-        if (al != bl) return al - bl;
+        .sort((a, b) {
+          final al = a.transformers.length;
+          final bl = b.transformers.length;
+          if (al != bl) return al - bl;
 
-        final ai = a.transformers.indexWhere((transformer) => transformer is T);
-        final bi = b.transformers.indexWhere((transformer) => transformer is T);
-        if (ai != bi) return ai - bi;
+          final ai = a.transformers.indexWhere(
+            (transformer) => transformer is T,
+          );
+          final bi = b.transformers.indexWhere(
+            (transformer) => transformer is T,
+          );
+          if (ai != bi) return ai - bi;
 
-        return 0;
-      },
-    );
+          return 0;
+        });
   }
 
   @override
-  Widget build(BuildContext context) => ScopeBuilder<MotionsDIalogController>(
-        builder: (context, scope, _) => Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 2 * Const.defaultPadding,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('${widget.name}:'),
-              Wrap(
-                spacing: Const.defaultPadding,
-                runSpacing: Const.defaultPadding,
-                children: _buildWidgets(scope),
-              ),
-            ],
-          ),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 2 * Const.defaultPadding),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text('${widget.name}:'),
+        Wrap(
+          spacing: Const.defaultPadding,
+          runSpacing: Const.defaultPadding,
+          children: _buildWidgets(context),
         ),
-      );
+      ],
+    ),
+  );
 
-  List<Widget> _buildWidgets(MotionsDIalogController scope) {
+  List<Widget> _buildWidgets(BuildContext context) {
     final theme = Theme.of(context);
+    final scope = MotionsDialog.access.of(context);
+    final params = MotionsDialog.access.paramsOf(context, listen: false);
+    final selectedMotion = MotionsDialog.access.select(
+      context,
+      (state) => state.selectedMotion,
+    );
+    final parent = params.parent;
     final alreadyOnList = scope.alreadyOnList;
     final widgets = <Widget>[];
 
@@ -131,25 +172,25 @@ class _ClassRowState<T extends MotionTransformer<Object?>>
         dimension: _boxSize,
         child: Motion(
           motion: template,
-          animation: scope.animation,
+          animation: params.animation,
           borderRadius: _boxSize * Const.borderRadiusFactor,
-          curve: scope.parent.curve,
-          flipped: scope.parent.flipped,
-          boxColor: scope.parent.boxColor,
-          alternateColor: scope.parent.alternateColor,
-          textOnBoxColor: scope.parent.textOnBoxColor,
-          textOutBoxColor: scope.parent.textOutBoxColor,
-          onTap: scope.widget.selectedMotion == null
+          curve: parent.curve,
+          flipped: parent.flipped,
+          boxColor: parent.boxColor,
+          alternateColor: parent.alternateColor,
+          textOnBoxColor: parent.textOnBoxColor,
+          textOutBoxColor: parent.textOutBoxColor,
+          onTap: params.selectedMotion == null
               ? null
               : () => scope.select(template),
         ),
       );
 
-      final selected = scope.selectedMotion == template;
+      final selected = selectedMotion == template;
 
       if (selected && !alreadyOnList.contains(template)) {
         box = Hero(
-          tag: scope.widget.selectedHeroTag!,
+          tag: params.selectedHeroTag!,
           createRectTween: (begin, end) => RectTween(begin: begin, end: end),
           child: box,
         );

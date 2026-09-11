@@ -9,11 +9,8 @@ class SkewTransformer extends MotionTransformerDouble with HasAlignment {
     this.axis,
     double? begin,
     double? end,
-  })  : alignment = alignment ?? Alignment.center,
-        super(
-          begin: begin ?? 0,
-          end: end ?? 1,
-        );
+  }) : alignment = alignment ?? Alignment.center,
+       super(begin: begin ?? 0, end: end ?? 1);
 
   @override
   final Alignment alignment;
@@ -24,10 +21,8 @@ class SkewTransformer extends MotionTransformerDouble with HasAlignment {
     switch (axis) {
       case Axis.horizontal:
         state.canvas.skew(transformedValue, 0);
-        break;
       case Axis.vertical:
         state.canvas.skew(0, transformedValue);
-        break;
       case null:
         state.canvas.skew(transformedValue, transformedValue);
     }
@@ -35,17 +30,11 @@ class SkewTransformer extends MotionTransformerDouble with HasAlignment {
 }
 
 class SkewXTransformer extends SkewTransformer {
-  const SkewXTransformer({
-    super.begin,
-    super.end,
-    super.alignment,
-  }) : super(axis: Axis.horizontal);
+  const SkewXTransformer({super.begin, super.end, super.alignment})
+    : super(axis: Axis.horizontal);
 }
 
 class SkewYTransformer extends SkewTransformer {
-  const SkewYTransformer({
-    super.begin,
-    super.end,
-    super.alignment,
-  }) : super(axis: Axis.vertical);
+  const SkewYTransformer({super.begin, super.end, super.alignment})
+    : super(axis: Axis.vertical);
 }

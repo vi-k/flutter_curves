@@ -11,10 +11,7 @@ class FadeTransformer extends MotionTransformerDouble {
     },
     double? begin,
     double? end,
-  }) : super(
-          begin: begin ?? 0,
-          end: end ?? 1,
-        );
+  }) : super(begin: begin ?? 0, end: end ?? 1);
 
   final Set<ObjectColor> colors;
 
@@ -24,7 +21,7 @@ class FadeTransformer extends MotionTransformerDouble {
 
     for (final c in colors) {
       final color = c.initialColorFrom(state);
-      c.setColorTo(state, color.withOpacity(color.opacity * value));
+      c.setColorTo(state, color.withValues(alpha: color.a * value));
     }
   }
 }
