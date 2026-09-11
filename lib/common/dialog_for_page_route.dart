@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 
 class _Const {
@@ -77,73 +75,50 @@ class DialogForPageRoute<T> extends PageRoute<T> {
   ) => _DialogForPageRouteContainer(builder);
 }
 
-class _DialogForPageRouteContainer extends StatefulWidget {
+/// The frame the dialog sits in: safe-area insets, a width cap and a scroll
+/// view no taller than its content.
+///
+/// The scroll view must not cover the viewport. `Scrollable` hit-tests
+/// opaquely, so everything underneath it — the modal barrier included — stops
+/// receiving taps; the empty room above and below the dialog therefore belongs
+/// to [Center], not to the scroll view.
+class _DialogForPageRouteContainer extends StatelessWidget {
   const _DialogForPageRouteContainer(this.builder);
 
   final WidgetBuilder builder;
 
   @override
-  State<_DialogForPageRouteContainer> createState() =>
-      _DialogForPageRouteContainerState();
-}
-
-class _DialogForPageRouteContainerState
-    extends State<_DialogForPageRouteContainer> {
-  double _offset = 0;
-
-  @override
   Widget build(BuildContext context) {
     final mediaQueryData = MediaQuery.of(context);
     final safeAreaPadding = mediaQueryData.padding;
-    final minTop = safeAreaPadding.top + _Const.minVPadding;
-    final minBottom = safeAreaPadding.bottom + _Const.minVPadding;
 
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: _Const.minHPadding),
+    return Padding(
+      padding: EdgeInsets.only(
+        top: safeAreaPadding.top + _Const.minVPadding,
+        bottom: safeAreaPadding.bottom + _Const.minVPadding,
+        left: _Const.minHPadding,
+        right: _Const.minHPadding,
+      ),
+      child: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: _Const.maxWidth),
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(
-                child: AnimatedContainer(
-                  height: minTop + _offset,
-                  duration: const Duration(milliseconds: 200),
+          child: SingleChildScrollView(
+            child: SizedBox(
+              width: double.infinity,
+              child: MediaQuery(
+                data: mediaQueryData.removePadding(
+                  removeTop: true,
+                  removeBottom: true,
+                ),
+                child: Material(
+                  clipBehavior: Clip.antiAlias,
+                  borderRadius: const BorderRadius.all(
+                    Radius.circular(_Const.borderRadius),
+                  ),
+                  child: builder(context),
                 ),
               ),
-              SliverToBoxAdapter(
-                child: MediaQuery(
-                  data: mediaQueryData.removePadding(
-                    removeTop: true,
-                    removeBottom: true,
-                  ),
-                  child: Material(
-                    clipBehavior: Clip.antiAlias,
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(_Const.borderRadius),
-                    ),
-                    child: widget.builder(context),
-                  ),
-                ),
-              ),
-              SliverLayoutBuilder(
-                builder: (context, constraints) {
-                  final bottomOffset =
-                      constraints.viewportMainAxisExtent -
-                      constraints.precedingScrollExtent -
-                      minBottom;
-
-                  if (_offset != bottomOffset) {
-                    _offset = math.max((bottomOffset + _offset) / 2, 0);
-                    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                      setState(() {});
-                    });
-                  }
-
-                  return const SliverToBoxAdapter(child: SizedBox.shrink());
-                },
-              ),
-            ],
+            ),
           ),
         ),
       ),
