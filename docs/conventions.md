@@ -153,6 +153,11 @@
   задаёт `repaint: animation`.
 - Новое преобразование канвы — это новый `MotionTransformer`, а не ветка
   внутри существующего.
+- **`toString()` на экран не выводят.** `Curve` его не переопределяет, а
+  release-сборка `--wasm` не вызывает даже те переопределения, что есть в
+  SDK: вместо значения получается `Instance of 'minified:…'`. Что надо
+  показать — форматируют явно, как `describeCurve`
+  (`lib/curves/curve/curve_description.dart`).
 
 ## Тесты
 

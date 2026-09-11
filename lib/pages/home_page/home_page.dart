@@ -540,7 +540,7 @@ class _CurveInfo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Text(
-    HomeScope.access.select(context, (state) => state.curve).toString(),
+    describeCurve(HomeScope.access.select(context, (state) => state.curve)),
     textAlign: TextAlign.center,
   );
 }

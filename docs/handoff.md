@@ -47,11 +47,12 @@ Dart 2.19 на Dart 3.13 — коммиты `23c1e20` и `29972e4`. До это�
 
 ```sh
 flutter analyze                              # No issues found!
-flutter test                                 # 4 теста, все зелёные
+flutter test                                 # 9 тестов, все зелёные
 dart format --set-exit-if-changed lib test   # 38 файлов, 0 changed
 ```
 
-Тесты в `test/widget_test.dart`: подъём главного экрана с его контролами,
+Тесты: `test/curve_description_test.dart` — форматирование кривой,
+`test/widget_test.dart` — подъём главного экрана с его контролами,
 переключение темы через скоуп `App`, открытие диалога выбора моушена,
 перестроение показаний кривой от слайдера `Cubic`. Последний проверен на
 нагруженность: со снятым `notifyDependents()` в сеттере `curve` он падает.
@@ -61,6 +62,20 @@ release-сборка проверена в браузере — не тольк�
 различать: 2026-09-12 release не поднимался вовсе на старом
 `web/index.html`, хотя собирался успешно. Разбор —
 `docs/records/2026-09-12[2]-web-bootstrap-report.md`.
+
+`flutter build web --wasm --base-href /` тоже собирается и работает.
+Две вещи про него стоит знать заранее:
+
+- **не отдавай его под заголовками изоляции.** Сервер с
+  `Cross-Origin-Embedder-Policy: require-corp` и
+  `Cross-Origin-Opener-Policy: same-origin` даёт белый экран: skwasm
+  грузится, а стеклянная панель остаётся 0×0. Обычного статического
+  сервера достаточно;
+- **`toString()` там врёт.** Переопределение `Cubic.toString()` в
+  wasm-сборке не вызывается, печатается `Instance of 'minified:…'`.
+  Поэтому показания кривой собирает `describeCurve`
+  (`lib/curves/curve/curve_description.dart`), а не сам объект. Разбор —
+  `docs/records/2026-09-12[3]-wasm-tostring-report.md`.
 
 **`flutter run -d macos` не проверен:** сборка падает на рассинхроне
 CocoaPods, и Flutter при этом переписывает файлы платформы. Причём это

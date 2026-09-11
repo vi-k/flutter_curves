@@ -293,6 +293,13 @@ final curve = HomeScope.access.select(context, (state) => state.curve);
 
 ## Каталоги шаблонов
 
+`curve_description.dart` — `describeCurve(Curve)`, строка под графиком.
+Она разбирает кривую образцами и печатает её параметры сама, а имя из
+каталога берёт только там, где параметров нет. Через `toString()` это не
+делается: `Curve` его не переопределяет, а release-сборка `--wasm` не
+вызывает даже те переопределения, что есть. Подробности —
+`docs/records/2026-09-12[3]-wasm-tostring-report.md`.
+
 `curves_templates.dart` — `IMap<String, Curve>` со всеми `Curves.*` плюс
 несколько собранных вручную `ThreePointCubic`, и две функции поиска:
 `findCurveByName` и `findNameByCurve`. Обратный поиск сравнивает кривые по
