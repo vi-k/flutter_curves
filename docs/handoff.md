@@ -25,7 +25,8 @@
 В этой сессии заведена документация для восстановления контекста после
 обрыва сессии: `AGENTS.md`, `CLAUDE.md`, `docs/handoff.md`,
 `docs/backlog.md`, `docs/architecture.md`, `docs/conventions.md`,
-`docs/records/`, русский перевод `README.ru.md`. Подробности —
+`docs/records/`, русский перевод `README.ru.md`. Смержено в `main`
+коммитом `255c898`, код при этом не менялся. Подробности —
 `docs/records/2026-09-11[1]-docs-bootstrap-report.md`.
 
 ## Что мешает — три расхождения с тулчейном
