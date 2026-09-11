@@ -8,17 +8,13 @@ analyzer:
   #   patterns: true
 
   exclude:
-    # Web
-    'web/**': true
-    # Build
-    'build/**': true
-    # Generated code
-    'lib/**.g.dart': true
-    'lib/**.freezed.dart': true
-    'lib/generated_plugin_registrant.dart': true
-    '.test_coverage.dart': true
-    # Assets
-    'assets/**': true
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
 
   language:
     strict-casts: true
