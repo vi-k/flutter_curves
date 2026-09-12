@@ -34,6 +34,32 @@ Dart 2.19 на Dart 3.13 — коммиты `23c1e20` и `29972e4`. До это�
 четырёх правок поведения, снятого мёртвого кода и переименований. Что из
 этого стоит помнить — в разделе ниже.
 
+`home_page.dart` разделён 2026-09-12: было 818 строк, стало 47. Скоуп
+экрана уехал в `home_scope.dart` — файл разросся именно от слияния
+страницы со скоупом, — а виджеты в `widgets/`, по файлу на предмет:
+
+| файл | строк | что внутри |
+| --- | --- | --- |
+| `home_page.dart` | 47 | `HomePage`, владелец тикера |
+| `home_scope.dart` | 271 | `HomeScope` и `HomeScopeState` |
+| `widgets/home_content.dart` | 141 | `HomeContent` и приватный `_Curve` |
+| `widgets/curve_sliders.dart` | 164 | `CubicControls`, `ElasticControls`, приватные `_Slider` и `_CurveSlider` |
+| `widgets/curves_selector.dart` | 75 | `CurvesSelector` и приватный `_SimpleCurve` |
+| `widgets/duration_controls.dart` | 76 | списки длительностей, `DurationControl`, `PauseControl` |
+| `widgets/theme_switcher.dart` | 41 | `ThemeSwitcher` |
+| `widgets/flipped_switch.dart` | 31 | `FlippedSwitch` |
+| `widgets/curve_info.dart` | 14 | `CurveInfo` |
+
+Правило раскладки: публичным стало только то, на что ссылаются из
+другого файла. `_Curve`, `_SimpleCurve`, `_Slider` и `_CurveSlider`
+остались приватными рядом со своими единственными потребителями.
+`motions_dialog.dart` изменился одной строкой импорта: `HomeScopeState`
+теперь берётся из `home_scope.dart`.
+
+Перенос чистый: все девятнадцать объявлений верхнего уровня старого
+файла присутствуют ровно по одному разу, тела классов сличены построчно
+и отличаются только именем и появившимся `super.key`.
+
 Открытых работ нет. Что стоит сделать дальше — в конце этого файла и в
 `docs/backlog.md`.
 
@@ -68,7 +94,7 @@ null-safe полом. После правки здесь `flutter pub get`, `flu
 ```sh
 flutter analyze                              # No issues found!
 flutter test                                 # 44 теста, все зелёные
-dart format --set-exit-if-changed lib test   # 46 файлов, 0 changed
+dart format --set-exit-if-changed lib test   # 54 файла, 0 changed
 ```
 
 Тесты: `test/curve_description_test.dart` — форматирование кривой,
@@ -253,12 +279,9 @@ GitHub отдаёт последний деплой, откуда бы он ни
 
 Ни одно из этого не начато; порядок — по убыванию пользы.
 
-1. **Разделить `lib/pages/home_page/home_page.dart`** — 818 строк после
-   слияния страницы с контроллером. Девять приватных виджетов-контролов
-   просятся в `widgets/`.
-2. **Разобраться с macOS-обвязкой.** `flutter run -d macos` не работает,
+1. **Разобраться с macOS-обвязкой.** `flutter run -d macos` не работает,
    а попытка его запустить переписывает файлы проекта Xcode.
-3. **Проверить остальные платформы.** Web проверен вживую, тесты идут на
+2. **Проверить остальные платформы.** Web проверен вживую, тесты идут на
    Flutter-тестовом движке. Android, iOS, Linux и Windows со времён
    Flutter 3.7 никто не собирал, и обвязка у них того же возраста, что у
    macOS.

@@ -4,7 +4,7 @@ import 'package:scopo/scopo.dart';
 
 import '../../constants.dart';
 import '../../motions/export.dart';
-import '../home_page/home_page.dart';
+import '../home_page/home_scope.dart';
 
 const double _boxSize = 60;
 const double _selectionPadding = 3;
