@@ -32,7 +32,7 @@ class _RecordingTransformer extends MotionTransformer<Object> {
 }
 
 class _RecordingObject extends MotionObject {
-  const _RecordingObject(this.events, {this.onPaint});
+  const _RecordingObject(this.events, {this.onPaint, super.rect});
 
   final List<String> events;
   final void Function(MotionState state)? onPaint;
@@ -61,7 +61,6 @@ void main() {
     final events = <String>[];
     final image = await renderCanvas((canvas) {
       Motions(
-        rect: const Rect.fromLTWH(5, 6, 7, 8),
         children: IListConst<MotionObject>([
           _RecordingObject(
             events,
@@ -80,7 +79,13 @@ void main() {
             },
           ),
         ]),
-      ).paint(createMotionState(canvas: canvas), 0);
+      ).paint(
+        createMotionState(
+          canvas: canvas,
+          rect: const Rect.fromLTWH(5, 6, 7, 8),
+        ),
+        0,
+      );
     });
 
     expect(await readPixel(image, 11, 1), const Color(0xff000000));
@@ -149,6 +154,45 @@ void main() {
     }
 
     expect(foundInk, isTrue);
+    image.dispose();
+  });
+
+  // A child declares its own rectangle; the parent's is only the fallback.
+  // Both cases live in one test because the fallback is what makes the
+  // first assertion say something: the two rectangles have to differ.
+  test('a child paints inside its own rectangle when it has one', () {
+    final events = <String>[];
+    Rect? withOwn;
+    Rect? withoutOwn;
+
+    Motions(
+      children: IListConst<MotionObject>([
+        _RecordingObject(
+          events,
+          rect: const Rect.fromLTWH(2, 3, 4, 5),
+          onPaint: (state) => withOwn = state.rect,
+        ),
+        _RecordingObject(events, onPaint: (state) => withoutOwn = state.rect),
+      ]),
+    ).paint(createMotionState(rect: const Rect.fromLTWH(0, 0, 10, 10)), 0);
+
+    expect(withOwn, const Rect.fromLTWH(2, 3, 4, 5));
+    expect(withoutOwn, const Rect.fromLTWH(0, 0, 10, 10));
+  });
+
+  // The text scales the canvas down to place the glyphs on whole pixels.
+  // Whatever is drawn after it must not inherit that scale.
+  test('motion text leaves the canvas as it found it', () async {
+    final image = await renderCanvas((canvas) {
+      final state = createMotionState(
+        canvas: canvas,
+        rect: const Rect.fromLTWH(0, 0, 30, 20),
+      );
+      const MotionText('A', fontSize: 10).paint(state, 0);
+      canvas.drawRect(const Rect.fromLTWH(0, 30, 8, 8), Paint());
+    });
+
+    expect(await readPixel(image, 4, 34), const Color(0xff000000));
     image.dispose();
   });
 }

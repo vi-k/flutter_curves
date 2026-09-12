@@ -2,18 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/painting.dart';
 
-enum RectAlignment {
-  topLeft,
-  topCenter,
-  topRight,
-  centerLeft,
-  center,
-  centerRight,
-  bottomLeft,
-  bottomCenter,
-  bottomRight,
-}
-
 class RectExt extends Rect {
   const RectExt.full() : super.fromLTRB(-1, -1, 1, 1);
 

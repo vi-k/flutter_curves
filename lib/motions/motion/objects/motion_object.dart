@@ -11,21 +11,14 @@ abstract class MotionObject {
     this.rect,
     IList<MotionTransformer<Object>>? transformers,
     IList<MotionObject>? children,
-    this.clip = true,
+    this.tappable = true,
   }) : transformers = transformers ?? const IListConst([]),
        children = children ?? const IListConst([]);
 
   final Rect? rect;
   final IList<MotionTransformer<Object>> transformers;
   final IList<MotionObject> children;
-  final bool clip;
-
-  void prepare(MotionState state) {
-    state.save();
-    if (rect != null) {
-      state.rect = rect!;
-    }
-  }
+  final bool tappable;
 
   @mustCallSuper
   void paint(MotionState state, double value) {
@@ -37,13 +30,9 @@ abstract class MotionObject {
     }
 
     for (final child in children) {
-      final stateCopy = state.save(rect);
+      final stateCopy = state.save(child.rect);
       child.paint(stateCopy, value);
       state.restore();
     }
-  }
-
-  void finalized(MotionState state) {
-    state.restore();
   }
 }

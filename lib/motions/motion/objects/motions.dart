@@ -5,6 +5,6 @@ class Motions extends MotionObject {
     super.rect,
     super.transformers,
     required super.children,
-    super.clip,
+    super.tappable,
   });
 }

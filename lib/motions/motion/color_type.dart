@@ -12,9 +12,6 @@ class DraftColor {
 
   const DraftColor._(this.type, this.opacity) : light = null, dark = null;
 
-  DraftColor.byColorType(ObjectColor colorType, double draftOpacity)
-    : this._(colorType._draftType, draftOpacity);
-
   const DraftColor.box([double opacity = 1])
     : this._(DraftColorType.box, opacity);
   const DraftColor.alternate([double opacity = 1])
@@ -50,13 +47,9 @@ class DraftColor {
 }
 
 enum ObjectColor {
-  box(DraftColorType.box),
-  textOnBox(DraftColorType.textOnBox),
-  textOutBox(DraftColorType.textOutBox);
-
-  const ObjectColor(this._draftType);
-
-  final DraftColorType _draftType;
+  box,
+  textOnBox,
+  textOutBox;
 
   Color initialColorFrom(MotionState state) {
     switch (this) {

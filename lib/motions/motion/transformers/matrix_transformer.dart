@@ -9,7 +9,6 @@ class MatrixTransformer extends MotionTransformerDouble with HasAlignment {
   const MatrixTransformer({
     required this.matrix,
     Alignment? alignment,
-    this.axis,
     double? begin,
     double? end,
   }) : alignment = alignment ?? Alignment.center,
@@ -18,7 +17,6 @@ class MatrixTransformer extends MotionTransformerDouble with HasAlignment {
   final Float64List Function(double value) matrix;
   @override
   final Alignment alignment;
-  final Axis? axis;
 
   @override
   void transform(MotionState state, double transformedValue) {

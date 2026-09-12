@@ -3,7 +3,8 @@ import 'package:flutter/painting.dart';
 import '../motion_state.dart';
 import 'motion_transformer.dart';
 
-class SkewTransformer extends MotionTransformerDouble with HasAlignment {
+class SkewTransformer extends MotionTransformerDouble
+    with HasAlignment, HasAxis {
   const SkewTransformer({
     Alignment? alignment,
     this.axis,
@@ -14,6 +15,7 @@ class SkewTransformer extends MotionTransformerDouble with HasAlignment {
 
   @override
   final Alignment alignment;
+  @override
   final Axis? axis;
 
   @override

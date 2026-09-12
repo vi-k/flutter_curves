@@ -3,10 +3,11 @@ import 'package:flutter/painting.dart';
 import '../motion_state.dart';
 import 'motion_transformer.dart';
 
-class TranslateTransformer extends MotionTransformerDouble {
+class TranslateTransformer extends MotionTransformerDouble with HasAxis {
   const TranslateTransformer({this.axis, double? begin, double? end})
     : super(begin: begin ?? 0, end: end ?? 1);
 
+  @override
   final Axis? axis;
 
   @override

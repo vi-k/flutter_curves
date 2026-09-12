@@ -5,14 +5,14 @@ import '../curve/curve_painter.dart';
 class CurveBox extends StatelessWidget {
   const CurveBox({
     super.key,
-    required this.horisontalMultiplier,
+    required this.horizontalMultiplier,
     required this.verticalMultiplier,
     required this.animation,
     required this.curve,
     required this.flipped,
   });
 
-  final double horisontalMultiplier;
+  final double horizontalMultiplier;
   final double verticalMultiplier;
   final Animation<double> animation;
   final Curve curve;
@@ -24,13 +24,13 @@ class CurveBox extends StatelessWidget {
 
     return RepaintBoundary(
       child: AspectRatio(
-        aspectRatio: horisontalMultiplier / verticalMultiplier,
+        aspectRatio: horizontalMultiplier / verticalMultiplier,
         child: CustomPaint(
           painter: CurvePainter(
             animation: animation,
             curve: curve,
             flipped: flipped,
-            horisontalMultiplier: horisontalMultiplier,
+            horizontalMultiplier: horizontalMultiplier,
             verticalMultiplier: verticalMultiplier,
             curveColor: theme.colorScheme.secondary,
             valueColor: theme.colorScheme.secondary,

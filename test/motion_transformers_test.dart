@@ -14,6 +14,38 @@ class _DoubleTransformer extends MotionTransformerDouble {
   void transform(MotionState state, double transformedValue) {}
 }
 
+mixin _RecordingStage on MotionTransformer<double> {
+  List<String> get stages;
+
+  @override
+  void prepare(MotionState state) {
+    stages.add('prepare');
+    super.prepare(state);
+  }
+
+  @override
+  void finalize(MotionState state) {
+    stages.add('finalize');
+    super.finalize(state);
+  }
+}
+
+// HasAlignment is applied last, so its super is the recording mixin: what
+// reaches the recorder is what the alignment mixin passed down.
+class _AlignedOverRecording extends MotionTransformerDouble
+    with _RecordingStage, HasAlignment {
+  _AlignedOverRecording(this.stages) : super(begin: 0, end: 1);
+
+  @override
+  final List<String> stages;
+
+  @override
+  Alignment get alignment => Alignment.center;
+
+  @override
+  void transform(MotionState state, double transformedValue) {}
+}
+
 void main() {
   test('a double transformer interpolates between its endpoints', () {
     const transformer = _DoubleTransformer(begin: -2, end: 6);
@@ -242,4 +274,25 @@ void main() {
       image.dispose();
     },
   );
+
+  // Every mixin stage has to hand the call down the chain it was given.
+  // With a single mixin a swapped super() is invisible: the base does
+  // nothing either way. Stacking two makes the swap show up.
+  test('the alignment mixin passes finalize down the chain', () {
+    final stages = <String>[];
+    final transformer = _AlignedOverRecording(stages);
+    final state = createMotionState();
+
+    transformer
+      ..prepare(state)
+      ..finalize(state);
+
+    expect(stages, ['prepare', 'finalize']);
+  });
+
+  test('every transformer that reads an axis carries the axis marker', () {
+    expect(const TranslateTransformer(), isA<HasAxis>());
+    expect(const ScaleTransformer(), isA<HasAxis>());
+    expect(const SkewTransformer(), isA<HasAxis>());
+  });
 }

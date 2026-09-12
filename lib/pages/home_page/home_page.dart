@@ -438,7 +438,7 @@ class _Main extends StatelessWidget {
           final curveWidth =
               curveHeight /
               Const.curveVerticalMultiplier *
-              Const.curveHorisontalMultiplier;
+              Const.curveHorizontalMultiplier;
           final separator = SizedBox.square(dimension: 2 * separatorSize);
 
           var content = [
@@ -502,7 +502,7 @@ class _Curve extends StatelessWidget {
     animation: HomeScope.access.of(context).motionController.animation,
     curve: HomeScope.access.select(context, (state) => state.curve),
     flipped: HomeScope.access.select(context, (state) => state.flipped),
-    horisontalMultiplier: Const.curveHorisontalMultiplier,
+    horizontalMultiplier: Const.curveHorizontalMultiplier,
     verticalMultiplier: Const.curveVerticalMultiplier,
   );
 }

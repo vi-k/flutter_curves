@@ -21,7 +21,9 @@ class MotionText extends MotionObject {
   void paint(MotionState state, double value) {
     // the location of the text is rounded to integer
     const k = 1000.0;
-    state.canvas.scale(1 / k);
+    state.canvas
+      ..save()
+      ..scale(1 / k);
 
     final p =
         ParagraphBuilder(
@@ -47,13 +49,15 @@ class MotionText extends MotionObject {
       ..layout(ParagraphConstraints(width: state.rrect.width * k));
     final height = paragraph.height;
 
-    state.canvas.drawParagraph(
-      paragraph,
-      Offset(
-        state.rrect.left * k,
-        ((state.rrect.top + state.rrect.bottom) * k - height) / 2,
-      ),
-    );
+    state.canvas
+      ..drawParagraph(
+        paragraph,
+        Offset(
+          state.rrect.left * k,
+          ((state.rrect.top + state.rrect.bottom) * k - height) / 2,
+        ),
+      )
+      ..restore();
 
     super.paint(state, value);
   }

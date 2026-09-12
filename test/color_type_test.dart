@@ -44,15 +44,6 @@ void main() {
     );
   });
 
-  test('draft colors can be created from an object color type', () {
-    final state = createMotionState(boxColor: const Color(0xff102030));
-
-    final draft = DraftColor.byColorType(ObjectColor.box, 0.25);
-
-    expect(draft.colorFrom(state).a, 0.25);
-    expect(draft.colorFrom(state).r, const Color(0xff102030).r);
-  });
-
   test('object colors read initial and current values and can write them', () {
     final state = createMotionState()..boxColor = const Color(0xff445566);
 

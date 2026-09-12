@@ -41,7 +41,7 @@ mixin HasAlignment<T> on MotionTransformer<T> {
   @override
   void finalize(MotionState state) {
     state.canvas.translate(-alignment.x, -alignment.y);
-    super.prepare(state);
+    super.finalize(state);
   }
 }
 

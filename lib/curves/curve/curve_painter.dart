@@ -6,7 +6,7 @@ class CurvePainter extends CustomPainter {
   CurvePainter({
     required this.animation,
     required this.curve,
-    required this.horisontalMultiplier,
+    required this.horizontalMultiplier,
     required this.verticalMultiplier,
     required Color curveColor,
     required Color axisColor,
@@ -40,7 +40,7 @@ class CurvePainter extends CustomPainter {
          ..color = guideLineColor,
        super(repaint: animation);
 
-  final double horisontalMultiplier;
+  final double horizontalMultiplier;
   final double verticalMultiplier;
   final Animation<double> animation;
   final Curve curve;
@@ -56,7 +56,7 @@ class CurvePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final ratio = math.min(
-      size.width / horisontalMultiplier,
+      size.width / horizontalMultiplier,
       size.height / verticalMultiplier,
     );
     final newSize = Size(size.width / ratio, size.height / ratio);
@@ -75,7 +75,7 @@ class CurvePainter extends CustomPainter {
 
     // grid by x
     final offsetY = (verticalMultiplier - 1) / 2;
-    final dx = ((horisontalMultiplier - 1) / 2 * 10).round();
+    final dx = ((horizontalMultiplier - 1) / 2 * 10).round();
     for (var i = -dx; i <= 10 + dx; i++) {
       final paint = i % 5 == 0 ? _gridPrimaryPaint : _gridSecondaryPaint;
       final x = i / 10;
@@ -83,7 +83,7 @@ class CurvePainter extends CustomPainter {
     }
 
     // grid by y
-    final offsetX = (horisontalMultiplier - 1) / 2;
+    final offsetX = (horizontalMultiplier - 1) / 2;
     final dy = ((verticalMultiplier - 1) / 2 * 10).round();
     for (var i = -dy; i <= 10 + dy; i++) {
       final paint = i % 5 == 0 ? _gridPrimaryPaint : _gridSecondaryPaint;

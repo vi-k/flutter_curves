@@ -68,7 +68,7 @@ class Motion extends StatelessWidget {
             border: Border.all(color: theme.colorScheme.inversePrimary),
             borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
           ),
-          child: !motion.clip ? box : InkWell(onTap: onTap, child: box),
+          child: motion.tappable ? InkWell(onTap: onTap, child: box) : box,
         ),
       ),
     );

@@ -6,7 +6,7 @@ class Const {
   static const Duration defaultAnimationDuration = Duration(milliseconds: 300);
 
   // horizontal multiplier of the main curve
-  static const double curveHorisontalMultiplier = 1.6;
+  static const double curveHorizontalMultiplier = 1.6;
 
   // vertical multiplier of the main curve
   static const double curveVerticalMultiplier = 1.6;
